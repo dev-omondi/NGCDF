@@ -1,0 +1,28 @@
+{
+  "name": "muhoroni_ngcdf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node back_end/app.js",
+    "dev": "nodemon back_end/app.js"
+  },
+  "keywords": [],
+  "author": "dev Omondi",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-async-handler": "^1.2.0",
+    "joi": "^18.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
