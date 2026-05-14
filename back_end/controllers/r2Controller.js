@@ -1,11 +1,6 @@
 // controllers/upload.controller.js
 
-import {
-  uploadSingleToR2,
-  uploadMultipleToR2,
-  deleteFromR2,
-} from "../services/r2.service.js";
-
+import { uploadMultipleToR2,uploadSingleToR2,deleteFromR2 } from "../middleawre/upload.js";
 /**
  * POST /upload/single
  * Handles single image upload to R2.
