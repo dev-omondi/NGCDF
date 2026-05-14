@@ -7,6 +7,7 @@ dotenv.config()
 import dbConnect from "./config/connectDb.js"
 import cookieParser from "cookie-parser"
 import userRouter from "./routers/userRouter.js"
+import applicationRouter from "./routers/applicationRouter.js"
 
 const app=express()
 
@@ -22,6 +23,7 @@ app.use(cookieParser())
 //routers
 app.use("/upload",r2Router)
 app.use("/user",userRouter)
+app.use("/application",applicationRouter)
 
 
 //error handler middleware

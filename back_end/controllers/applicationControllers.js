@@ -301,3 +301,5 @@ const updateApplicantsStatus=expressAsyncHandler(async(req,res)=>{
   await applicant.save()
   res.status(200).json(applicant)
 })
+
+export {createApplication,getApplicants,getApllicant,updateApplicantsStatus}
