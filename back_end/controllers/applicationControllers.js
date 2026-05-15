@@ -1,12 +1,12 @@
 
-import Applications from "../models/applicationModel.js";
+import Applications from "../models/applicationSchema.js";
 import expressAsyncHandler from "express-async-handler";
 
 //..@description---------------------------------------create submit applicant
 //..@api------------------------------------------------POST/api/user
 //..@access--------------------------------------------public
 
-export const createApplication =expressAsyncHandler( async (req, res) => {
+ const createApplication =expressAsyncHandler( async (req, res) => {
   try {
     const {
       burSaryType,

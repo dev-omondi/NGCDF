@@ -1,13 +1,13 @@
 
-import express, { urlencoded } from "express"
-import dotenv from "dotenv"
+import express from "express"
+import "dotenv/config"
 import { notFound ,errorHandler} from "./middleawre/errorHandler.js"
 import r2Router from "./routers/r2Routes.js"
-dotenv.config()
 import dbConnect from "./config/connectDb.js"
 import cookieParser from "cookie-parser"
 import userRouter from "./routers/userRouter.js"
 import applicationRouter from "./routers/applicationRouter.js"
+import cors from "cors";
 
 const app=express()
 
@@ -17,7 +17,7 @@ dbConnect()
 //..@middleawares
 app.use(cors())
 app.use(express.json())
-app.use(urlencoded({extended:true}))
+app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 
 //routers

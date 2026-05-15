@@ -5,11 +5,7 @@ import {
   uploadMultiple,
   deleteUpload,
 } from "../controllers/r2Controller.js";
-import {
-  validateSingleFileType,
-  validateMultipleFileTypes,
-} from "../middleware/validateFiletype.js";
-
+import { validateMultipleFileTypes,validateSingleFileType } from "../middleawre/validateFiletype.js";
 const router = express.Router();
 
 // Multer - memory storage only (files go straight to R2, never touch disk)
