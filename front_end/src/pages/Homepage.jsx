@@ -1,281 +1,286 @@
-import React from "react";
+import React from 'react'
 import Autoplay from "embla-carousel-autoplay";
-import {Check,X,Dot} from "lucide-react"
-import exampleImg from "@/assets/example.png"
-import mapImg from "@/assets/map.png"
-import examle2Img from "@/assets/exampl2.png"
-
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {ShieldCheck,FileText,Clock3,Smartphone,SearchCheck,Users} 
+from "lucide-react";
 import { Link } from "react-router-dom";
+import image1 from "@/assets/image1.png"
+import image2 from "@/assets/image2.png"
 
 const slides = [
-  {
-    img:exampleImg,
-    badge: "NG-CDF Portal",
-    heading: "Access Constituency Services and Development Updates",
-    sub: "Apply for bursary support and view ongoing and completed development projects within your constituency.",
-  },
-  {
-    img:exampleImg,
-    badge: "Bursary Applications",
-    heading: "Submit and Track Your Bursary Application",
-    sub: "Apply for financial support and monitor the status of your bursary application through a transparent online system.",
-  },
-  {
-    img:exampleImg,
-    badge: "Constituency Development",
-    heading: "Monitor Ongoing and Completed Projects",
-    sub: "View funded development projects including schools, roads, water, and health facilities in your constituency.",
-  },
+  { img: image1 },
+  { img: image2 },
 ];
+ const features = [
+    {
+      icon: <Clock3 className="w-10 h-10 text-blue-600" />,
+      title: "Fast Application Process",
+      description:
+        "Apply for bursary online within minutes without visiting offices physically.",
+    },
+    {
+      icon: <FileText className="w-10 h-10 text-blue-600" />,
+      title: "Easy Document Upload",
+      description:
+        "Upload all required documents securely through the platform.",
+    },
+    {
+      icon: <ShieldCheck className="w-10 h-10 text-blue-600" />,
+      title: "Secure & Reliable",
+      description:
+        "Your information and documents are protected with secure storage.",
+    },
+    {
+      icon: <SearchCheck className="w-10 h-10 text-blue-600" />,
+      title: "Transparent Review",
+      description:
+        "Applications are reviewed fairly and applicants receive feedback.",
+    },
+    {
+      icon: <Smartphone className="w-10 h-10 text-blue-600" />,
+      title: "Mobile Friendly",
+      description:
+        "Access the bursary platform easily using your phone or computer.",
+    },
+    {
+      icon: <Users className="w-10 h-10 text-blue-600" />,
+      title: "Accessible to Everyone",
+      description:
+        "Students and parents can apply anytime from anywhere.",
+    },
+  ];
 
-export default function Homepage() {
+const Homepage = () => {
   return (
-    <div className="w-full">
-      <Carousel
-        plugins={[
-          Autoplay({
-            delay: 4000,
-            stopOnInteraction: false,
-          }),
-        ]}
-        opts={{
-          loop: true,
-        }}
-        className="w-full"
-      >
-        <CarouselContent className="-ml-0">
-          {slides.map((slide, index) => (
-            <CarouselItem key={index} className="pl-0">
-              <div className="relative w-full h-[580px] overflow-hidden">
-                {/* Image — no rounded corners so no white gap */}
-                <img
-                  src={slide.img}
-                  alt={slide.heading}
-                  className="w-full h-full object-cover"
-                />
-
-                {/* White gradient overlay — left heavy, fades right */}
-                <div className="absolute w-full flex justify-center items-center inset-0 " />
-
-                {/* Content */}
-                <div className="absolute inset-0 flex flex-col items-center 
-                justify-center text-center px-8 md:px-16 w-full">
-                  {/* Badge */}
-                  <span className="inline-block w-fit  text-blue-600 
-                  text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
-                    {slide.badge}
-                  </span>
-
-                  {/* Heading */}
-                  <h1 className="text-gray-900 text-3xl md:text-5xl font-semibold leading-tight mb-4">
-                    {slide.heading}
-                  </h1>
-
-                  {/* Sub */}
-                  <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-8 max-w-lg">
-                    {slide.sub}
-                  </p>
-
-                  {/* Shared buttons — same on every slide */}
-                  <div className="flex flex-wrap gap-8">
-                    <Link
-                      to="/bursary/apply"
-                      className="bg-blue-500 hover:bg-blue-600 text-white 
-                      font-semibold px-6 py-3 rounded-lg text-sm transition-all duration-300 shadow-md"
-                    >
-                      Apply Bursary
-                    </Link>
-                    <Link
-                      to="/funding"
-                      className="bg-white hover:bg-blue-50 text-blue-600 
-                      font-semibold px-6 py-3 rounded-lg text-sm transition-all duration-300 
-                      border border-blue-400 shadow-md"
-                    >
-                      Fundings
-                    </Link>
-                  </div>
+    <div className="overflow-hidden w-full">
+      <div className="relative w-full px-0.5">
+        <Carousel
+          plugins={[
+            Autoplay({
+              delay: 4000,
+              stopOnInteraction: false,
+            }),
+          ]}
+          opts={{ loop: true }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-0">
+            {slides.map((slide, index) => (
+              <CarouselItem key={index} className="pl-0">
+                <div className="relative w-full h-[280px] sm:h-[380px] md:h-[480px] lg:h-[560px] overflow-hidden">
+                  <img
+                    src={slide.img}
+                    alt={`Slide ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-
-                {/* Slide counter */}
-                <div className="absolute bottom-5 right-6 text-gray-500 text-xs font-mono">
-                  {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
-                </div>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-      <section className="w-full py-10 bg-white">
-      <div className="w-full mx-auto ">
-        <section className="flex flex-col md:flex-row gap-1 md:gap-12 items-center mx-auto px-6 w-full">
-        <div>
-        <h2 className="text-xl md:text-2xl font-bold text-blue-500 text-center">
-          Why Use Muhoroni e-services?
-        </h2>
-        <p className="text-center text-green-500 mt-2 font-semibold mb-8 ">
-          A faster, transparent and more reliable way to apply for bursary support.
-        </p>
-          </div>
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-center text-blue-500">
-              Why is it an upgarde of NGCDF?
-            </h2>
-            <p className="text-center text-green-500 font-semibold mt-2 mb-8">
-              Its no longer static,allowing the citizens to be able to interact with information.</p>
-          </div>
-        </section>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-2 shadow-lg">
-          <div className="p-4 rounded-2xl border bg-white text-center">
-            <h3 className="font-semibold text-red-600 mb-3">
-              Traditional Application (Old System)
-            </h3>
-            <ul className="space-y-2 text-gray-700 text-sm">
-              <li className="flex items-center gap-2">
-                <X className="text-red-600"/>
-                <span>Travelling long distance to submit the forms</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <X className="text-red-600"/>
-                <span> Paperwork can be lost or damaged</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <X className="text-red-600"/>
-                <span>Not sure if approved to wait for disburment</span>
-              </li>
-              <li className="flex items-start gap-2"> 
-               <X className="text-red-600"/>
-               <span> Limited transparency</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="p-4 rounded-2xl border bg-white shadow-lg">
-            <h3 className="font-semibold text-blue-600 mb-3">
-              Digital Application (New System)
-            </h3>
-            <ul className="space-y-2 text-gray-700 text-sm">
-              <li className="flex items-start gap-2">
-                <Check className="text-blue-700"/>
-                <span> Apply anytime from your phone or computer</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="text-blue-700"/>
-                <span>Secure and stored digitally</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="text-blue-700"/>
-                <span>No more long distance for submision</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="text-blue-700"/>
-                <span>Track application status in real time</span>
-              </li>
-            </ul>
-          </div>
-          <div className="p-4 rounded-2xl bg-white shadow-lg border">
-            <h3 className="text-center text-green-500 font-semibold mb-3">Here are the imporvements</h3>
-            <ul className="space-y-2 text-gray-600 text-sm">
-              <li className="flex items-start gap-2">
-                <Dot className="text-green-600"/>
-                <span>One can comment on the on the projects</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Dot className="text-green-600"/>
-                <span>Suggestion on particular development is possible</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Dot className="text-green-600"/>
-                <span>Booking appointments from the site</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Dot className="text-green-600"/>
-                <span>Complaining incase of a poor service from the staff</span>
-              </li>
-            </ul>
-          </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+        {/* Floating buttons */}
+        <div className="absolute bottom-6 sm:bottom-8 md:bottom-12 left-0 right-0 flex justify-center gap-3 sm:gap-4 z-10 pointer-events-none px-4">
+          <Link
+            to="/bursary/apply"
+            className="pointer-events-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 sm:px-6 sm:py-3 md:px-7 rounded-lg text-xs sm:text-sm shadow-lg transition-all duration-300"
+          >
+            Apply Now
+          </Link>
+          <Link
+            to="/bursary/status"
+            className="pointer-events-auto bg-white/90 hover:bg-white text-blue-700 font-semibold px-4 py-2 sm:px-6 sm:py-3 md:px-7 rounded-lg text-xs sm:text-sm shadow-lg transition-all duration-300 border border-blue-300"
+          >
+            Check Status
+          </Link>
         </div>
       </div>
-    </section>
-    <div className=" px-8 py-8 bg-blue-200 mx-auto shadow-md">
-  <h1 className="text-center font-bold text-2xl text-white">
-    Enjoy Seamless Navigation
-  </h1>
-
-  <p className="text-center text-lg italic text-green-600 mt-2 leading-relaxed">
-    To submit comments, share suggestions, or access additional constituency
-    services, please sign in to your account or register to continue.
-  </p>
-  <div className="flex justify-center mt-4">
-    <Link
-      to="/login"
-      className="bg-blue-500 hover:bg-blue-600 transition-colors duration-300 text-white font-medium px-6 py-2 rounded-lg shadow-sm"
-    >
-      Login
-    </Link>
-  </div>
-  <p className="text-center text-sm text-blue-900 mt-4">
-    Don't have an account?{" "}
-    <Link
-      to="/register"
-      className="text-blue-700 font-semibold hover:underline"
-    >
-      Register here
-    </Link>
-  </p>
-</div>
-<section className="w-full py-10 px-3 bg-white">
-
-  <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-3 items-center">
-
-    {/* LEFT SIDE */}
-    <div className="bg-green-200 px-6 py-4 rounded-2xl">
-      <h2 className="text-2xl font-bold text-gray-800">
-        One Constituency, Unlimited Opportunities
-      </h2>
-
-      <p className="mt-3 text-gray-600 italic leading-relaxed text-center">
-        Serving all wards within Muhoroni Constituency through accessible
-        bursary services and community development programs.
-      </p>
-      <div className="mt-5 grid grid-cols-2 gap-2 text-sm">
-        <div className="bg-white px-3 text-blue-500 text-center py-2 rounded-lg font-semibold">
-          Miwani Ward
-        </div>
-
-        <div className="bg-blue-50 px-3 py-2 rounded-lg">
-          Ombeyi Ward
-        </div>
-
-        <div className="bg-blue-50 px-3 py-2 rounded-lg">
-          Chemelil Ward
-        </div>
-
-        <div className="bg-blue-50 px-3 py-2 rounded-lg">
-          Muhoroni/Koru
-        </div>
-         <div className="bg-blue-50 px-3 py-2 rounded-lg">
-          Masogo/Nyang'oma
-        </div>
-
-
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6 py-10 bg-gray-50">
+  
+  {/* Application Process */}
+  <div className="bg-white rounded-2xl shadow-lg p-6 border hover:shadow-2xl transition duration-300">
+    <h2 className="text-2xl font-bold text-blue-600 mb-6 text-center">
+      Application Process
+    </h2>
+    <div className="space-y-4 text-gray-700">
+      <div className="flex items-start gap-3">
+        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold">
+          1
+        </span>
+        <p>Choose the bursary type suitable for your application.</p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold">
+          2
+        </span>
+        <p>Fill in all application forms accurately and completely.</p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold">
+          3
+        </span>
+        <p>Upload and verify all required supporting documents.</p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold">
+          4
+        </span>
+        <p>Wait for review and feedback from the Muhoroni NG-CDF office.</p>
+      </div>
+      <div className="mt-6 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm">
+        Applications submitted after the deadline will not be considered.
       </div>
     </div>
+  </div>
 
-    {/* RIGHT SIDE */}
-    <div className="flex justify-center">
-      <img
-        src={mapImg}
-        alt="Muhoroni Constituency Map"
-        className="w-full max-w-sm rounded-xl shadow-md"
-      />
+  {/* FAQ Section */}
+  <div className="bg-white rounded-2xl shadow-lg p-6 border hover:shadow-2xl transition duration-300">
+    <h2 className="text-2xl font-bold text-blue-600 mb-6 text-center">
+      Frequently Asked Questions
+    </h2>
+      <Accordion type="single" collapsible className="w-full space-y-3">
+        
+        <AccordionItem value="item-1" >
+          <AccordionTrigger>
+            Who is eligible for the bursary?
+          </AccordionTrigger>
+
+          <AccordionContent className="text-gray-600">
+            Students residing within Muhoroni Constituency and enrolled in recognized institutions.
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="item-2" >
+          <AccordionTrigger>
+            When is the application deadline?
+          </AccordionTrigger>
+
+          <AccordionContent className="text-gray-600">
+            The deadline will be communicated officially on the platform homepage.
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="item-3" >
+          <AccordionTrigger>
+            What is the application cost on this platform?
+          </AccordionTrigger>
+
+          <AccordionContent className="text-gray-600">
+            the bursary application process is completely free.
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="item-4">
+          <AccordionTrigger>
+            Can I edit my details later?
+          </AccordionTrigger>
+
+          <AccordionContent className="text-gray-600">
+            Yes, you can edit your details before final submission.
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-5">
+          <AccordionTrigger>
+            How do i know that my application is verified?
+          </AccordionTrigger>
+          <AccordionContent className={"text-shadow-gray-600"}>
+            Continuosly check on your application status for the updates
+          </AccordionContent>
+        </AccordionItem>
+
+      </Accordion>
+  </div>
+
+  {/* Documents Checklist */}
+  <div className="bg-white rounded-2xl shadow-lg p-6 border hover:shadow-2xl transition duration-300">
+    <h2 className="text-2xl font-bold text-blue-600 mb-6 text-center">
+      Required Documents
+    </h2>
+    <ul className="space-y-4 text-gray-700">
+      <li className="flex items-center gap-3">
+        <span className="text-green-500 text-xl">✔</span>
+        National ID / Birth Certificate
+      </li>
+      <li className="flex items-center gap-3">
+        <span className="text-green-500 text-xl">✔</span>
+        Admission Letter
+      </li>
+      <li className="flex items-center gap-3">
+        <span className="text-green-500 text-xl">✔</span>
+        School Fee Structure
+      </li>
+      <li className="flex items-center gap-3">
+        <span className="text-green-500 text-xl">✔</span>
+        Parent/Guardian ID Copy
+      </li>
+      <li className="flex items-center gap-3">
+        <span className="text-green-500 text-xl">✔</span>
+        KCSE Result Slip / Academic Transcript
+      </li>
+      <li className="flex items-center gap-3">
+        <span className="text-green-500 text-xl">✔</span>
+        National Votter Card
+      </li>
+      <li className="flex items-center gap-3">
+        <span className="text-green-500 text-xl">✔</span>
+        Admision Number
+      </li>
+    </ul>
+    <div className="mt-6 bg-blue-50 border border-blue-200 p-3 rounded-lg text-sm text-blue-700">
+      Ensure all uploaded documents are clear and valid.
     </div>
   </div>
 </section>
-</div>
-  );
+
+{/*Why muhoroni bursary eservice*/}
+<section className="py-4 px-4 bg-gray-50">
+      
+      {/* Heading */}
+      <div className="text-center mb-8">
+        <h2 className="text-4xl font-bold text-blue-700 mb-4">
+          Why Muhoroni Bursary eService?
+        </h2>
+
+        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+          The Muhoroni NG-CDF Bursary eService simplifies the bursary
+          application process by making it faster, transparent, and accessible
+          to all students.
+        </p>
+      </div>
+
+      {/* Features */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        {features.map((feature, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-2xl p-8 shadow-md hover:shadow-2xl transition duration-300 border border-gray-100"
+          >
+            <div className="mb-5">{feature.icon}</div>
+
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+              {feature.title}
+            </h3>
+
+            <p className="text-gray-600 leading-relaxed">
+              {feature.description}
+            </p>
+          </div>
+        ))}
+
+      </div>
+    </section>
+    </div>
+  )
 }
+
+export default Homepage
