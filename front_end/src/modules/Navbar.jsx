@@ -22,10 +22,15 @@ const Navbar = () => {
               <Link className='hover:bg-blue-600 hover:text-white p-2  transition-all duration-500 rounded'>More...</Link>
             </section>
             <section className='hidden md:flex items-center gap-3'>
-              <Link className='bg-blue-400 rounded px-4 py-2 text-white cursor-pointer hover:bg-blue-600 transition-all duration-300 text-sm'>
+              <Link className='bg-blue-400 rounded px-4 py-2 text-white cursor-pointer
+               hover:bg-blue-600 transition-all duration-300 text-sm'
+               to={"/login"}>
                 Sign In
               </Link>
-              <Link className='bg-blue-400 rounded px-4 py-2 text-white cursor-pointer hover:bg-blue-600 transition-all duration-300 text-sm'>
+              <Link className='bg-blue-400 rounded px-4 py-2 text-white cursor-pointer hover:bg-blue-600 
+              transition-all duration-300 text-sm'
+              to={"/register"}
+              >
                 Sign Up
               </Link>
             </section>
