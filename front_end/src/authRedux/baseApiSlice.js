@@ -14,10 +14,10 @@ const baseApi=usersApi.injectEndpoints({
             invalidatesTags:["Users"]
         }),
         login:builder.mutation({
-            query:()=>({
-                url:`${USER_URL}/login`,
+            query:(data)=>({
+                url:`${USER_URL}/auth`,
                 method:"POST",
-
+                body:data,
             }),
             invalidatesTags:["Users"]
         }),

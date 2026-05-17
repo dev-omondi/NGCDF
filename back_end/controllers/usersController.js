@@ -53,6 +53,7 @@ const loginUser=expressAsyncHandler(async(req,res)=>{
         throw new Error("Invalid email or password");
         
     }
+    console.log(isMatch)
     generateToken(res,user._id)
 
     res.status(200).json({

@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
+import { useLoginMutation } from '@/authRedux/baseApiSlice.js'
+import { setCredentials } from '@/authRedux/authSlice.js'
+import { useSelector,useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 const Signinpage = () => {
   const [formData, setFormData] = useState({
@@ -7,7 +11,37 @@ const Signinpage = () => {
     password: ""
   })
 
+  const[formError,setFormError]=useState("")
+  
+  const dispatch=useDispatch()
+  const navigate=useNavigate()
+  const userInfor=useSelector((state)=>state.auth.userInfor)
+  const [login,{isLoading}]=useLoginMutation()
   const [showPassword, setShowPassword] = useState(false)
+
+  const handleSubmit=async(e)=>{
+    e.preventDefault()
+    setFormError("")
+    try {
+      const userData={
+      email:formData.email,
+      password:formData.password
+    }
+    const res=await login(userData).unwrap()
+    dispatch(setCredentials(res))
+    setFormData({
+      email:"",
+      password:""
+    })
+    navigate("/")
+    } catch (error) {
+      if (error?.data?.error?.length) {
+        setFormError(error.data.error.join(", "))
+    } else {
+        setFormError(error?.data?.message || error?.error || "Something went wrong")
+    }
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -292,8 +326,12 @@ const Signinpage = () => {
             </button>
           </div>
 
-          <form className="si-fields" onSubmit={(e) => { e.preventDefault(); console.log(formData) }}>
-
+          <form className="si-fields" onSubmit={handleSubmit}>
+              {formError && (
+                            <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                                {formError}
+                            </p>
+                        )}
             <div className="si-field">
               <label className="si-label">Email Address</label>
               <input className="si-input" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="jane@example.com" required />
