@@ -21,9 +21,9 @@ app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 
 //routers
-app.use("/upload",r2Router)
-app.use("/user",userRouter)
-app.use("/application",applicationRouter)
+app.use("/api/upload",r2Router)
+app.use("/api/users",userRouter)
+app.use("/api/application",applicationRouter)
 
 
 //error handler middleware

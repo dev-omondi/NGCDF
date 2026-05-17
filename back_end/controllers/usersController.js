@@ -14,12 +14,14 @@ const registerUser=expressAsyncHandler(async(req ,res)=>{
         res.status(409)
         throw new Error("Already have an account login or use a diffrent email")
     }
+   
     //generate token
     const user=await Users.create({
         email,firstName,secondName,password,
     })
+  
     generateToken(res,user._id)
-    res.status(200).json({
+    res.status(201).json({
         firstName:user.firstName,
         secondName:user.secondName,
         email:user.email,

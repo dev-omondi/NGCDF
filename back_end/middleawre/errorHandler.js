@@ -6,7 +6,7 @@ const notFound=(req,res,next)=>{
 }
 
 const errorHandler=(error,req,res,next)=>{
-    let statusCode=res.statusCode &&res.statusCode!==200?res.statusCode:500
+    let statusCode=error.statusCode ??(res.statusCode!==200?res.statusCode:500)
     let message=error.message
 
     if (error.name==="CastError"&&error.kind==="ObjectId") {
@@ -15,6 +15,7 @@ const errorHandler=(error,req,res,next)=>{
     }
     res.status(statusCode).json({
         message,
+        error:error.errors??undefined,
         stackTrace:process.env.NODE_ENV==="production"?null:error.stack
     })
 }

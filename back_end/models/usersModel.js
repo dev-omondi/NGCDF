@@ -37,7 +37,7 @@ const userSchema=mongoose.Schema({
 },{timestamps:true})
 
 userSchema.pre("save",async function() {
-   if (!this.isModified(password)) return
+   if (!this.isModified("password")) return
    const salt=await bcrypt.genSalt(10) 
    this.password=bcrypt.hash(this.password,salt)
 })

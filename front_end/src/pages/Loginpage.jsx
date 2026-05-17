@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 
 const Signinpage = () => {
   const [formData, setFormData] = useState({
@@ -6,17 +7,14 @@ const Signinpage = () => {
     password: ""
   })
 
+  const [showPassword, setShowPassword] = useState(false)
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // handle sign in logic
   }
 
   return (
@@ -196,7 +194,7 @@ const Signinpage = () => {
           background: #f8faff;
           border: 1px solid #e2e8f0;
           border-radius: 10px;
-          padding: 11px 14px;
+          padding: 11px 40px 11px 14px;
           font-size: 14px;
           font-family: 'DM Sans', sans-serif;
           color: #0f172a;
@@ -210,6 +208,27 @@ const Signinpage = () => {
           background: #ffffff;
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
         }
+
+        .si-input-wrap {
+          position: relative;
+        }
+
+        .si-eye-btn {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          cursor: pointer;
+          color: #6366f1;
+          display: flex;
+          align-items: center;
+          transition: color 0.2s;
+        }
+        .si-eye-btn:hover { color: #4f46e5; }
 
         .si-submit {
           width: 100%;
@@ -273,37 +292,28 @@ const Signinpage = () => {
             </button>
           </div>
 
-          <div className="si-fields">
+          <form className="si-fields" onSubmit={(e) => { e.preventDefault(); console.log(formData) }}>
 
             <div className="si-field">
               <label className="si-label">Email Address</label>
-              <input
-                className="si-input"
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="jane@example.com"
-              />
+              <input className="si-input" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="jane@example.com" required />
             </div>
 
             <div className="si-field">
               <div className="si-label-row">
                 <label className="si-label">Password</label>
-                <button className="si-forgot">Forgot password?</button>
+                <button type="button" className="si-forgot">Forgot password?</button>
               </div>
-              <input
-                className="si-input"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-              />
+              <div className="si-input-wrap">
+                <input className="si-input" type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
+                <button type="button" className="si-eye-btn" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
-            <button className="si-submit" onClick={handleSubmit}>Sign In</button>
-          </div>
+            <button type="submit" className="si-submit">Sign In</button>
+          </form>
 
           <div className="si-footer">
             Don't have an account?{' '}

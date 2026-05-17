@@ -1,14 +1,63 @@
 import React, { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
+import { useRegisterMutation } from '@/authRedux/baseApiSlice.js'
+import { setCredentials } from '@/authRedux/authSlice.js'
+import {useDispatch,useSelector} from "react-redux"
+import { useNavigate } from 'react-router-dom'
 
 const Registerpage = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     secondName: "",
     email: "",
-    password: ""
+    password: "",
+    confirmPassword:""
   })
+  const[toggleConfirmPassword,setToggleConfirmPassword]=useState(false) 
+  const [showPassword, setShowPassword] = useState(false)
+  const[formError,setFormError]=useState("")
 
-  const [focused, setFocused] = useState("")
+  const navigate=useNavigate()
+  const dispatch=useDispatch()
+  const userInfor=useSelector((state)=>state.auth.userInfor)
+  const [register,{isLoading}]=useRegisterMutation()
+
+  const handleSubmit=async(e)=>{
+    e.preventDefault()
+    setFormError("")
+    
+    try {
+      if(formData.confirmPassword.trim()!==formData.password.trim()){
+        return setFormError("Passwords dont match")
+      }
+      const userData={
+        firstName:formData.firstName.trim(),
+        secondName:formData.secondName.trim(),
+        email:formData.email.trim(),
+        password:formData.password.trim()
+      }
+      
+      const res=await register(userData).unwrap()
+
+      dispatch(setCredentials(res))
+      setFormData({
+        firstName:"",
+        secondName:"",
+        email:"",
+        password:"",
+        confirmPassword:""
+      })
+      navigate("/")
+      
+    } catch (error) {
+      
+      if (error?.data?.error?.length) {
+        setFormError(error.data.error.join(", "))
+    } else {
+        setFormError(error?.data?.message || error?.error || "Something went wrong")
+    }
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -183,7 +232,7 @@ const Registerpage = () => {
           background: #f8faff;
           border: 1px solid #e2e8f0;
           border-radius: 10px;
-          padding: 11px 14px;
+          padding: 11px 40px 11px 14px;
           font-size: 14px;
           font-family: 'DM Sans', sans-serif;
           color: #0f172a;
@@ -198,6 +247,27 @@ const Registerpage = () => {
           background: #ffffff;
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
         }
+
+        .rp-input-wrap {
+          position: relative;
+        }
+
+        .rp-eye-btn {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          cursor: pointer;
+          color: #6366f1;
+          display: flex;
+          align-items: center;
+          transition: color 0.2s;
+        }
+        .rp-eye-btn:hover { color: #4f46e5; }
 
         .rp-submit {
           width: 100%;
@@ -261,30 +331,49 @@ const Registerpage = () => {
             </button>
           </div>
 
-          <div className="rp-fields">
+          <form className="rp-fields" onSubmit={handleSubmit} >
+                        {formError && (
+                            <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                                {formError}
+                            </p>
+                        )}
             <div className="rp-row">
               <div className="rp-field">
                 <label className="rp-label">First Name</label>
-                <input className="rp-input" type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Jane" />
+                <input className="rp-input" type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Jane" required />
               </div>
               <div className="rp-field">
                 <label className="rp-label">Last Name</label>
-                <input className="rp-input" type="text" name="secondName" value={formData.secondName} onChange={handleChange} placeholder="Doe" />
+                <input className="rp-input" type="text" name="secondName" value={formData.secondName} onChange={handleChange} placeholder="Doe" required />
               </div>
             </div>
 
             <div className="rp-field">
               <label className="rp-label">Email Address</label>
-              <input className="rp-input" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="jane@example.com" />
+              <input className="rp-input" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="jane@example.com" required />
             </div>
 
             <div className="rp-field">
               <label className="rp-label">Password</label>
-              <input className="rp-input" type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" />
+              <div className="rp-input-wrap">
+                <input className="rp-input" type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
+                <button type="button" className="rp-eye-btn" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div className="rp-field">
+              <label className="rp-label">confirmPassowrd</label>
+              <div className="rp-input-wrap">
+                <input className="rp-input" type={toggleConfirmPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" required />
+                <button type="button" className="rp-eye-btn" onClick={() => setToggleConfirmPassword(!toggleConfirmPassword)}>
+                  {toggleConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
-            <button className="rp-submit">Create Account</button>
-          </div>
+            <button type="submit" className="rp-submit">Create Account</button>
+          </form>
 
           <div className="rp-footer">
             Already have an account?{' '}
