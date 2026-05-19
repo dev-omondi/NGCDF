@@ -7,6 +7,7 @@ import {registerUser,
         getUser,
         deleteUser,
         updateRole,
+        logoutUser,
         updateUser} from "../controllers/usersController.js"
 import { registerSchema } from "../config/authVallidator.js";        
 import { authToken,roleAuth } from "../middleawre/authToken.js";
@@ -14,6 +15,7 @@ import validate from "../middleawre/joiValidator.js";
 
 router.route("/register").post(validate(registerSchema),registerUser)
 router.route("/auth").post(loginUser)
+router.route("/logout").post(logoutUser)
 //seperate user self-routes
 router.route("/profile")
                 .get(authToken,getUsers)

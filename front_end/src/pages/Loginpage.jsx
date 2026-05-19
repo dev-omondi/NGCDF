@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect} from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { useLoginMutation } from '@/authRedux/baseApiSlice.js'
 import { setCredentials } from '@/authRedux/authSlice.js'
@@ -18,10 +18,26 @@ const Signinpage = () => {
   const userInfor=useSelector((state)=>state.auth.userInfor)
   const [login,{isLoading}]=useLoginMutation()
   const [showPassword, setShowPassword] = useState(false)
+ 
+
+   useEffect(()=>{
+    console.log(userInfor)
+    if(isLoading)return
+    console.log(userInfor?.role)
+      if(userInfor){
+        if(userInfor.role==="admin"){
+          navigate("/admin/dashboard")
+        }else{
+          navigate("/login")
+        }
+      }
+    },[userInfor])
 
   const handleSubmit=async(e)=>{
     e.preventDefault()
     setFormError("")
+    console.log("userInfor",userInfor)
+   
     try {
       const userData={
       email:formData.email,
@@ -33,7 +49,10 @@ const Signinpage = () => {
       email:"",
       password:""
     })
-    navigate("/")
+    console.log("res",res)
+    if(res?.user?.role){
+      navigate("/admin/dashboard")
+    }
     } catch (error) {
       if (error?.data?.error?.length) {
         setFormError(error.data.error.join(", "))

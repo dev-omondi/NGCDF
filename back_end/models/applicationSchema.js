@@ -102,6 +102,9 @@ const applicationSchema = mongoose.Schema(
     guardianPhone: {
       type: String,
     },
+    gurdianRelation:{
+      type:String
+    },
     siblingsinhigh: {
       type: [String],
     },

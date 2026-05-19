@@ -65,6 +65,20 @@ const loginUser=expressAsyncHandler(async(req,res)=>{
     })
 
 })
+//..@description-------------------------------logout the user
+//..@api------------------------------------------POST/api/user/logout
+//..@access----------------------------------------public
+const logoutUser=expressAsyncHandler(async(req,res)=>{
+    res.cookie("jwt","",{
+        httpOnly:true,
+        sameSite:"strict",
+        secure:process.env.NODE_ENV==="production",
+        expires:new Date(0)
+    })
+    res.status(200).json({
+        message:"User Logged Out successfully"
+    })
+})
 //..@description-----------------------------find all the users
 //..@api---------------------------------------GET/api/users/
 //..@access-------------------------------------private
@@ -179,5 +193,6 @@ export{registerUser,
         getUser,
         deleteUser,
         updateRole,
-        updateUser
+        updateUser,
+        logoutUser
 }
