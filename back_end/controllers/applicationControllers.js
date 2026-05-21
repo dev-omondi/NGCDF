@@ -6,7 +6,7 @@ import expressAsyncHandler from "express-async-handler";
 //..@api------------------------------------------------POST/api/user
 //..@access--------------------------------------------public
 
- const createApplication =expressAsyncHandler( async (req, res) => {
+ const createApplication = expressAsyncHandler(async (req, res) => {
   try {
     const {
       burSaryType,
@@ -19,12 +19,14 @@ import expressAsyncHandler from "express-async-handler";
       gender,
       phoneNumber,
       idNo,
+      birthCertNo,
       Age,
 
       fatherName,
-    motherName,
-    guardianName,
-    guardianPhone,
+      motherName,
+      guardianName,
+      guardianRelationship,
+      guardianPhone,
 
       institutionName,
       levelOfStudy,
@@ -35,95 +37,80 @@ import expressAsyncHandler from "express-async-handler";
       feeBalance,
 
       disability,
-      siblingsBenefiting,
-      parenthoodStatus,
       sponsorship,
+      siblings,
+      parenthoodStatus,
 
       documents,
     } = req.body;
 
-    // BASIC REQUIRED VALIDATION
-    if (!burSaryType) return res.status(400).json({ message: "Bursary type required" });
-    if (!ward) return res.status(400).json({ message: "Ward required" });
-    if (!fullName) return res.status(400).json({ message: "Full name required" });
-    if (!gender) return res.status(400).json({ message: "Gender required" });
-    if (!institutionName) return res.status(400).json({ message: "Institution name required" });
-    if (!levelOfStudy) return res.status(400).json({ message: "Level of study required" });
-    if (!admissionNo) return res.status(400).json({ message: "Admission number required" });
-    if (!totalFees && totalFees !== 0){
-      res.status(400)
-      throw new Error("Total fees required");
-    }
-    if (!feeBalance && feeBalance !== 0){
-      res.status(400)
-    throw new Error("Fee balance required");
-    }
-    if (!Age){ 
-       res.status(400)
-      throw new Error("Age is required");
-  }
+    // ================= BASIC VALIDATION =================
+    if (!burSaryType) throw new Error("Bursary type required");
+    if (!ward) throw new Error("Ward required");
+    if (!fullName) throw new Error("Full name required");
+    if (!gender) throw new Error("Gender required");
+    if (!institutionName) throw new Error("Institution name required");
+    if (!levelOfStudy) throw new Error("Level of study required");
+    if (!admissionNo) throw new Error("Admission number required");
 
-    // PHONE VALIDATION
+    if (totalFees == null) throw new Error("Total fees required");
+    if (feeBalance == null) throw new Error("Fee balance required");
+    if (Age == null) throw new Error("Age is required");
+
+    // ================= PHONE VALIDATION =================
     const phoneRegex = /^(07|01|2547|2541)\d{8}$/;
     if (phoneNumber && !phoneRegex.test(phoneNumber)) {
-      res.status(400)
       throw new Error("Invalid phone number");
     }
 
-
-    // FEES VALIDATION
+    // ================= FEES VALIDATION =================
     if (totalFees < 0 || feeBalance < 0) {
-      res.status(400)
       throw new Error("Fees cannot be negative");
     }
 
-    if (feeBalance > totalFees) {
-      res.status(400)
+    if (Number(feeBalance) > Number(totalFees)) {
       throw new Error("Fee balance cannot exceed total fees");
     }
 
-    // AGE + DOCUMENT VALIDATION
+    // ================= AGE + DOCUMENT VALIDATION =================
+    const birthCertificate = documents?.find(
+      (doc) => doc.name === "birthCertificate"
+    );
+
+    const idCopy = documents?.find((doc) => doc.name === "idCopy");
+
     if (Age < 18) {
-      // MUST HAVE BIRTH CERTIFICATE
-      if (!documents?.birthCertificate) {
-        res.status(400)
+      if (!birthCertificate?.file) {
         throw new Error("Applicants under 18 must provide birth certificate");
       }
     } else {
-      // 18+ must have ID OR birth certificate OR both
-      if (!documents?.birthCertificate && !idNo) {
-        res.status(400)
-        throw new Error("Applicants 18+ must provide ID number or birth certificate")
+      if (!birthCertificate?.file && !idNo && !idCopy?.file) {
+        throw new Error(
+          "Applicants 18+ must provide ID number or birth certificate"
+        );
       }
     }
 
-    // LEVEL OF STUDY VALIDATION
-    if (levelOfStudy === "Secondary") {
-      if (!studentClass) {
-        return res.status(400).json({
-          message: "Secondary students must provide class",
-        });
-      }
+    // ================= LEVEL VALIDATION =================
+    if (levelOfStudy === "Secondary" && !studentClass) {
+      throw new Error("Secondary students must provide class");
     }
 
     if (
-      levelOfStudy === "University" ||
-      levelOfStudy === "College"
+      (levelOfStudy === "University" || levelOfStudy === "College") &&
+      !yearOfStudy
     ) {
-      if (!yearOfStudy) {
-        return res.status(400).json({
-          message: "University/College students must provide year of study",
-        });
-      }
+      throw new Error(
+        "University/College students must provide year of study"
+      );
     }
 
+    // ================= GUARDIAN VALIDATION =================
     if (!fatherName && !motherName && !guardianName) {
-        return res.status(400).json({
-            message: "Provide at least one parent or guardian information",
-        });
-        }
+      throw new Error("Provide at least one parent or guardian information");
+    }
 
-    // DUPLICATE CHECK
+    // ================= DUPLICATE CHECK =================
     const existing = await Applications.findOne({
       admissionNo,
       institutionName,
@@ -135,8 +122,7 @@ import expressAsyncHandler from "express-async-handler";
       });
     }
 
-
-    // CREATE APPLICATION
+    // ================= CREATE APPLICATION =================
     const application = await Applications.create({
       burSaryType,
       ward,
@@ -148,12 +134,14 @@ import expressAsyncHandler from "express-async-handler";
       gender,
       phoneNumber,
       idNo,
+      birthCertNo,
       Age,
-    
+
       fatherName,
-     motherName,
-     guardianName,
-     guardianPhone,
+      motherName,
+      guardianName,
+      guardianRelationship,
+      guardianPhone,
 
       institutionName,
       levelOfStudy,
@@ -163,12 +151,22 @@ import expressAsyncHandler from "express-async-handler";
       totalFees,
       feeBalance,
 
-      disability,
-      siblingsBenefiting,
-      parenthoodStatus,
-      sponsorship,
+      // IMPORTANT FIX (match schema)
+      disability: {
+        hasDisability: disability?.hasDisability || false,
+        disabilityType: disability?.disabilityType || "",
+      },
 
-      documents,
+      sponsorship: {
+        hasSponsor: sponsorship?.hasSponsor || false,
+        sponsorName: sponsorship?.sponsorName || "",
+      },
+
+      siblings: siblings || [],
+
+      parenthoodStatus,
+
+      documents: documents || [],
     });
 
     res.status(201).json({
@@ -184,7 +182,6 @@ import expressAsyncHandler from "express-async-handler";
     });
   }
 });
-
 //..@description--------------------------------------------get the all applicants or through filter
 //..@api-----------------------------------------------------GET/api/user/allusers
 //..@access--------------------------------------------------private

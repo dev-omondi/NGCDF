@@ -1,183 +1,91 @@
-
 import mongoose from "mongoose";
 
-const applicationSchema = mongoose.Schema(
+const applicationSchema = new mongoose.Schema(
   {
-    burSaryType: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    ward: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-    },
-    location: {
-      type: String,
-      trim: true,
-      required: true,
-      lowercase: true,
-    },
-    subLocation: {
-      type: String,
-      required: true,
-      lowercase: true,
-    },
-    village: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      required:true
-    },
+    // basic info
+    burSaryType: { type: String, required: true, trim: true },
+    ward: { type: String, required: true, trim: true },
+    location: { type: String, required: true, trim: true },
+    subLocation: { type: String, required: true, trim: true },
+    village: { type: String, required: true, trim: true },
 
     // student details
-    fullName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    gender: {
-      type: String,
-      enum: ["Male", "Female", "Others"],
-      required:true
-    },
-    phoneNumber: {
-      type: String,
-      trim: true,
-    },
-    idNo: {
-      type: String,
-      trim: true,
-    },
-    Age:{
-        type:Number,
-        required:true
-    },
+    fullName: { type: String, required: true, trim: true },
+    gender: { type: String, required: true, enum: ["Male", "Female", "Others"] },
+    phoneNumber: { type: String },
+    idNo: { type: String },
+    birthCertNo: { type: String },
+    Age: { type: Number, required: true },
 
-    // institution details
-    institutionName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    // institution
+    institutionName: { type: String, required: true, trim: true },
     levelOfStudy: {
       type: String,
       required: true,
       enum: ["Secondary", "College", "University"],
     },
-    class: {
+    class: { type: String },
+    yearOfStudy: { type: String },
+    admissionNo: { type: String, required: true },
+    totalFees: { type: Number, required: true },
+    feeBalance: { type: Number, required: true },
+
+    // family
+    fatherName: { type: String },
+    fatherPhone: { type: String },
+
+    motherName: { type: String },
+    motherPhone: { type: String },
+
+    guardianName: { type: String },
+    guardianRelationship: { type: String },
+    guardianPhone: { type: String },
+
+    parenthoodStatus: {
       type: String,
-      trim: true,
-    },
-    yearOfStudy: {
-      type: String,
-      trim:true,
-    },
-    admissionNo: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    totalFees: {
-      type: Number,
-      required:true,
-    },
-    feeBalance: {
-      type: Number,
-      required:true,
+      enum: ["Both Parents Alive", "Single Parent", "Orphan", "Partial Orphan"],
     },
 
-    // family details
-    fatherName: {
-      type: String,
-    },
-    motherName: {
-      type: String,
-    },
-    guardianName: {
-      type: String,
-    },
-    guardianPhone: {
-      type: String,
-    },
-    gurdianRelation:{
-      type:String
-    },
-    siblingsinhigh: {
-      type: [String],
-    },
+    // disability (FIXED STRUCTURE)
     disability: {
-    hasDisability: {
-    type: Boolean,
-    default: false,
+      hasDisability: { type: Boolean, default: false },
+      disabilityType: { type: String },
     },
-    disabilityType: {
-        type:String,
-        trim:true,
+
+    // sponsor (FIXED STRUCTURE)
+    sponsorship: {
+      hasSponsor: { type: Boolean, default: false },
+      sponsorName: { type: String },
     },
-    },
-    siblingsBenefiting: {
-    hasBeneficiarySibling: {
-        type: Boolean,
-        default: false,
-    },
-    beneficiarySiblingsExplanation:{
-        type:String,
-    },
-    },
-    parenthoodStatus:{
-        type:String,
-        enum:[
-            "Both Parents Alive",
-            "Single Parent",
-            "Orphan",
-            "Partial Orphan"
-            ]
-    },
-        sponsorship: {
-    hasSponsor: {
-        type: Boolean,
-        default: false,
-    },
-    sponsorName: {
-        type: String,
-        trim: true,
-    },
-    },
-    // documents for storing file path urls
-    documents: {
-      idCopy: { type: String },
-      admissionLetter: { type: String },
-      feeStructure: { type: String, required: true },
-      parentsIdCopy: { type: [String] },
-      parentsVoterCard: { type: [String] },
-      stdVoterCard: { type: [String] },
-      birthCertificate: { type: String },
-      latestTranscript: { type: String },
-      latestReceipt: { type: String },
-      kcseresultSlip: { type: String },
-      siblingsReceipts: { type: [String] },
-      paymentReceipt: { type: String },
-      siblingsBirthcert: { type: [String] },
-      deathDocument: { type: String },
-    },
+
+    // siblings (MATCH FRONTEND ARRAY)
+    siblings: [
+      {
+        name: String,
+        institution: String,
+        level: String,
+        yearOfStudy: String,
+        hasBeneficiarySibling: Boolean,
+        beneficiarySiblingsExplanation: String,
+      },
+    ],
+
+    // documents (CRITICAL FIX)
+    documents: [
+      {
+        name: { type: String },
+        file: { type: String, required: true }, // URL or path
+      },
+    ],
+
     status: {
       type: String,
       enum: ["Pending", "Approved", "Rejected"],
       default: "Pending",
     },
 
-    ApprovedAmount: {
-      type: Number,
-      default: 0,
-    },
-
-    // admin notes
-    remarks: {
-      type: String,
-    },
+    ApprovedAmount: { type: Number, default: 0 },
+    remarks: { type: String },
   },
   { timestamps: true }
 );

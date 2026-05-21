@@ -1,6 +1,10 @@
 
 import { useState } from "react";
-
+import { updateFormData,resetApplicationForm,setCurrentStep } from "@/applicationRedux/applicationSlice";
+import { useDispatch,useSelector } from "react-redux";
+import { useApplyMutation } from "@/applicationRedux/baseAppslice";
+import { useUploadMutation } from "@/imageRedux/imageBase";
+import { useNavigate } from "react-router-dom";
 const steps = [
   "Personal Info",
   "Location",
@@ -8,177 +12,256 @@ const steps = [
   "Family",
   "proof of burden",
   "Documents",
-  
+  "Review and Submit"
 ];
 
 const ApplicationForm = () => {
-  const [step, setStep] = useState(0);
 
-  const [form, setForm] = useState({
-    burSaryType: "",
-    ward: "",
-    location: "",
-    subLocation: "",
-    village: "",
+  const dispatch=useDispatch()
+  const navigate=useNavigate()
+  const {formData:form,currentStep:step}=useSelector((state)=>state.application)
 
-    fullName: "",
-    gender: "",
-    phoneNumber: "",
-    idNo: "",
-    Age: "",
-
-    institutionName: "",
-    levelOfStudy: "",
-    class: "",
-    yearOfStudy: "",
-    admissionNo: "",
-    totalFees: "",
-    feeBalance: "",
-
-    fatherName: "",
-    motherName: "",
-    guardianName: "",
-    fatherPhone: "",
-    motherPhone: "",
-    guardianRelationship: "",
-    guardianPhone: "",
-
-    hasDisability: false,
-    disabilityType: "",
-
-    parenthoodStatus: "",
-
-    hasSponsor: false,
-    sponsorName: "",
-
-    documents:[
-        {
-      name: "",
-      file: null,
-    },
-    ] ,
-    siblings: [
-  {
-    name: "",
-    institution: "",
-    level: "",
-    yearOfStudy: "",
-    hasBeneficiarySibling: false,
-    beneficiarySiblingsExplanation: "",
-  },
-],
-  });
+  const[apply,{isLoading}]=useApplyMutation()
+  const [upload,{isLoading:uploadLoading}]=useUploadMutation()
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    setForm({
-      ...form,
-      [name]: type === "checkbox" ? checked : value,
-    });
+   dispatch(
+    updateFormData({
+      [name]:type==="checkbox"?checked:value
+    })
+   )
   };
+  {/**validating document upload so that the applicant must fill the document name */}
+    const validateDocuments = () => {
+    for (let i = 0; i < form.documents.length; i++) {
+      const doc = form.documents[i];
+      if (!doc.name) {
+        alert(`Select document type for document ${i + 1}`);
+        return false;
+      }
+      if (!doc.file) {
+        alert(`Upload file for ${doc.name}`);
+        return false;
+      }
+    }
 
-  const handleFile = (e) => {
-    setForm({
-      ...form,
-      documents: {
-        ...form.documents,
-        [e.target.name]: e.target.files[0],
-      },
-    });
-  };
+  return true;
+};
+
   {/**handle proof of burden change */}
   const handleSiblingChange = (index, e) => {
   const { name, value, type, checked } = e.target;
 
-  const updated = [...form.siblings];
+  const updated = form.siblings.map((sib, i) =>
+    i === index
+      ? {
+          ...sib,
+          [name]:
+            type === "checkbox"
+              ? checked
+              : value,
+        }
+      : sib
+  );
 
-  updated[index][name] =
-    type === "checkbox" ? checked : value;
-
-  setForm({ ...form, siblings: updated });
+  dispatch(
+    updateFormData({
+      siblings: updated,
+    })
+  );
 };
-
 {/**addd and remove sibllings incase of a mistake */}
-const addSibling = () => {
-  setForm({
-    ...form,
-    siblings: [
-      ...form.siblings,
-      {
-        name: "",
-        institution: "",
-        level: "",
-        yearOfStudy: "",
-        hasBeneficiarySibling: false,
-        beneficiarySiblingsExplanation: "",
-      },
-    ],
-  });
+  const addSibling = () => {
+  dispatch(
+    updateFormData({
+      siblings: [
+        ...form.siblings,
+        {
+          name: "",
+          institution: "",
+          level: "",
+          yearOfStudy: "",
+          hasBeneficiarySibling: false,
+          beneficiarySiblingsExplanation: "",
+        },
+      ],
+    })
+  );
 };
 
 const removeSibling = (index) => {
   const updated = form.siblings.filter((_, i) => i !== index);
-  setForm({ ...form, siblings: updated });
+  dispatch(
+  updateFormData({
+    siblings: updated,
+  })
+);
 };
 
 {/**document funtionality
   for managinging documents fields
    */}
-    const handleDocumentChange = (index, field, value) => {
-  const updated = [...form.documents];
+  const handleDocumentChange = (index, field, value) => {
+  const updated = form.documents.map((doc, i) =>
+    i === index
+      ? {
+          ...doc,
+          [field]: value,
+        }
+      : doc
+  );
 
-  updated[index][field] = value;
-
-  setForm({
-    ...form,
-    documents: updated,
-  });
+  dispatch(
+    updateFormData({
+      documents: updated,
+    })
+  );
 };
 
-const addDocument = () => {
-  setForm({
-    ...form,
-    documents: [
-      ...form.documents,
-      {
-        name: "",
-        file: null,
-      },
-    ],
-  });
+  const addDocument = () => {
+  dispatch(
+    updateFormData({
+      documents: [
+        ...form.documents,
+        {
+          name: "",
+          file: null,
+          preview: null,
+        },
+      ],
+    })
+  );
 };
 
-const removeDocument = (index) => {
+  const removeDocument = (index) => {
   const updated = form.documents.filter(
     (_, i) => i !== index
   );
 
-  setForm({
-    ...form,
-    documents: updated,
-  });
+  dispatch(
+    updateFormData({
+      documents: updated,
+    })
+  );
 };
 
-  const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
-  const back = () => setStep((s) => Math.max(s - 1, 0));
+{/**function that allows the user to navigate between the form pages */}
+      const next = () => {
+      dispatch(
+        setCurrentStep(
+          Math.min(step + 1, steps.length - 1)
+        )
+      );
+    };
 
-  const submit = (e) => {
+    const back = () => {
+      dispatch(
+        setCurrentStep(
+          Math.max(step - 1, 0)
+        )
+      );
+    };
+
+  {/**fuctionality for uploading image to the cloud */}
+      const handleFileUpload = async (index, e) => {
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  try {
+    const imageData = new FormData();
+
+    // MUST match multer field name
+    imageData.append("file", file);
+
+    const res = await upload(imageData).unwrap();
+
+    const updated = form.documents.map((doc, i) =>
+  i === index
+    ? {
+        ...doc,
+        file: res.url,
+        r2Key: res.key,
+        preview: URL.createObjectURL(file),
+        fileName: file.name,
+        fileType: file.type,
+      }
+    : doc
+);
+
+    dispatch(
+      updateFormData({
+        documents: updated,
+      })
+    );
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+    {/**fuctionality fro creating application */}
+
+    const submit = async (e) => {
     e.preventDefault();
-    console.log("FINAL APPLICATION:", form);
-    // send via axios/formData to backend
+      
+  if(!validateDocuments()) return
+    const cleanedForm = {
+    ...form,
+    Age: Number(form.Age),
+    totalFees: Number(form.totalFees),
+    feeBalance: Number(form.feeBalance),
   };
+  try {
+    const res = await apply(cleanedForm).unwrap();
 
+    console.log(res);
+
+    alert("Application submitted successfully");
+
+    dispatch(resetApplicationForm());
+
+  } catch (error) {
+    console.log(error);
+
+    alert(
+      error?.data?.message ||
+      "Application submission failed"
+    );
+  }
+};
+   const documentOptions = [
+  "Birth Certificate / National ID",
+  "Applicant ID Card",
+  "Voter's Card",
+  "Academic Transcript",
+  "Burial Certificate / Burial Permit",
+  "Fee Balance Receipt",
+  "Sibling Birth Certificate / ID",
+  "Parent/Guardian ID Card",
+  "Parent/Guardian Voter's Card",
+  "Death Certificate",
+  "School Fee Receipt",
+  "Fee Structure",
+  "KCSE Result Slip",
+  "Admission Letter",
+  "Chief Letter",
+  "Church Letter",
+  "Applicant Letter",
+];
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8">
 
         {/* HEADER */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Bursary Application</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-center">Bursary Application</h1>
+          <p className="text-sm text-gray-500 text-center">
             Step {step + 1} of {steps.length} — {steps[step]}
           </p>
+          <p className="text-center font-semibold text-red-500">Before you submit your application,recheck if you have selected the correct type 
+            .Not every applicant is eligible for scholarship</p>
         </div>
 
         {/* STEP INDICATOR */}
@@ -194,52 +277,189 @@ const removeDocument = (index) => {
         </div>
 
         {/* FORM */}
-        <form onSubmit={submit} className="space-y-6">
+        <form className="space-y-6">
 
           {/* STEP 1 */}
-          {step === 0 && (
-            <div className="grid md:grid-cols-2 gap-4">
-              <input name="fullName" placeholder="Full Name" onChange={handleChange} className="input" />
-              <select name="gender" onChange={handleChange} className="input">
-                <option value="">Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Others</option>
-              </select>
+    {step === 0 && (
+  <div className="grid md:grid-cols-2 gap-4">
 
-              <input name="phoneNumber" placeholder="Phone Number" onChange={handleChange} className="input" />
-              <input name="idNo" placeholder="ID Number" onChange={handleChange} className="input" />
-              <input name="Age" placeholder="Age" type="number" onChange={handleChange} className="input" />
-            </div>
-          )}
+    {/* FULL NAME */}
+    <input
+      name="fullName"
+      placeholder="Full Name"
+      onChange={handleChange}
+      value={form.fullName}
+      className="input"
+    />
 
+    {/* GENDER */}
+    <select
+      name="gender"
+      onChange={handleChange}
+      value={form.gender}
+      className="input"
+    >
+      <option value="">Gender</option>
+      <option>Male</option>
+      <option>Female</option>
+      <option>Others</option>
+    </select>
+
+    {/* BURSARY TYPE (NEW) */}
+    <select
+      name="burSaryType"
+      onChange={handleChange}
+      className="input"
+      value={form.burSaryType}
+      required
+    >
+      <option value="">Select Bursary Type</option>
+      <option value="scholarship">Scholarship</option>
+      <option value="bursary">Bursary</option>
+    </select>
+
+    {/* PHONE NUMBER */}
+    <input
+      name="phoneNumber"
+      placeholder="Phone Number"
+      onChange={handleChange}
+      value={form.phoneNumber}
+      className="input"
+    />
+
+    {/* ID NUMBER */}
+    <input
+      name="idNo"
+      placeholder="ID Number(Leave if you dont have ID)"
+      onChange={handleChange}
+      value={form.idNo}
+      className="input"
+    />
+
+    {/* BIRTH CERTIFICATE NUMBER (NEW) */}
+    <input
+      name="birthCertNo"
+      placeholder="Birth Certificate Number(Leave if you have ID)"
+      onChange={handleChange}
+      value={form.birthCertNo}
+      className="input"
+    />
+
+    {/* AGE */}
+    <input
+      name="Age"
+      placeholder="Age"
+      type="number"
+      onChange={handleChange}
+      value={form.Age}
+      className="input"
+    />
+
+      {/*Disability input */}
+      <div className="flex items-center gap-2">
+        <input
+        type="checkbox"
+        name="hasDisability"
+        checked={form.hasDisability}
+        onChange={handleChange}
+        className="w-5 h-5"
+      />
+      <label >Do you have any Disability</label>
+      </div>
+      {
+        form.hasDisability &&(
+         <input
+         placeholder="Disability Type"
+         name="disabilityType"
+         type="text"
+         value={form.disabilityType}
+          onChange={handleChange}
+          className="p-3 border rounded font-semibold"
+         />
+        )
+      }
+
+  </div>
+)}
           {/* STEP 2 */}
           {step === 1 && (
             <div className="grid md:grid-cols-2 gap-4">
-              <input name="ward" placeholder="Ward" onChange={handleChange} className="input" />
-              <input name="location" placeholder="Location" onChange={handleChange} className="input" />
-              <input name="subLocation" placeholder="Sub Location" onChange={handleChange} className="input" />
-              <input name="village" placeholder="Village" onChange={handleChange} className="input" />
+              <input name="ward"
+               placeholder="Ward"
+               onChange={handleChange} 
+               value={form.ward}
+              className="input" />
+
+              <input name="location" 
+              placeholder="Location"
+              value={form.location}
+               onChange={handleChange}
+                className="input" />
+
+              <input name="subLocation"
+               placeholder="Sub Location"
+                onChange={handleChange} 
+                value={form.subLocation}
+                className="input" />
+
+              <input name="village" 
+              placeholder="Village"
+              value={form.village}
+               onChange={handleChange}
+                className="input" />
             </div>
           )}
 
           {/* STEP 3 */}
           {step === 2 && (
             <div className="grid md:grid-cols-2 gap-4">
-              <input name="institutionName" placeholder="Institution Name" className="input" onChange={handleChange} />
+              <input name="institutionName"
+               placeholder="Institution Name" 
+               value={form.institutionName}
+               className="input" 
+               onChange={handleChange} />
 
-              <select name="levelOfStudy" className="input" onChange={handleChange}>
+              <select name="levelOfStudy"
+              value={form.levelOfStudy}
+               className="input" 
+              onChange={handleChange}>
                 <option value="">Level of Study</option>
                 <option>Secondary</option>
                 <option>College</option>
                 <option>University</option>
               </select>
 
-              <input name="admissionNo" placeholder="Admission Number" className="input" onChange={handleChange} />
-              <input name="class" placeholder="Class / Course" className="input" onChange={handleChange} />
-              <input name="yearOfStudy" placeholder="Year of Study" className="input" onChange={handleChange} />
-              <input name="totalFees" placeholder="Total Fees" type="number" className="input" onChange={handleChange} />
-              <input name="feeBalance" placeholder="Fee Balance" type="number" className="input" onChange={handleChange} />
+              <input name="admissionNo"
+               placeholder="Admission Number"
+                className="input"
+                value={form.admissionNo}
+                 onChange={handleChange} />
+
+              <input name="class"
+               placeholder="Class / Course" 
+               className="input" 
+               value={form.class}
+               onChange={handleChange} />
+
+              <input name="yearOfStudy" 
+              placeholder="Year of Study" 
+              value={form.yearOfStudy}
+              className="input"
+               onChange={handleChange} />
+
+                <input name="totalFees" 
+                placeholder="Total Fees" 
+                type="number"
+                className="input"
+                value={form.totalFees}
+                onChange={handleChange} />
+
+              <input name="feeBalance"
+               placeholder="Fee Balance"
+                type="number" 
+                className="input"
+                value={form.feeBalance}
+                 onChange={handleChange} />
             </div>
           )}
 
@@ -252,6 +472,8 @@ const removeDocument = (index) => {
     <input
       name="fatherName"
       placeholder="Father Name"
+      type="text"
+      value={form.fatherName}
       className="input"
       onChange={handleChange}
     />
@@ -259,6 +481,8 @@ const removeDocument = (index) => {
     <input
       name="fatherPhone"
       placeholder="Father Phone Number"
+      type="text"
+      value={form.fatherPhone}
       className="input"
       onChange={handleChange}
     />
@@ -266,12 +490,16 @@ const removeDocument = (index) => {
     <input
       name="motherName"
       placeholder="Mother Name"
+      type="text"
+      value={form.motherName}
       className="input"
       onChange={handleChange}
     />
 
     <input
       name="motherPhone"
+      type="text"
+      value={form.motherPhone}
       placeholder="Mother Phone Number"
       className="input"
       onChange={handleChange}
@@ -281,6 +509,7 @@ const removeDocument = (index) => {
     <select
       name="parenthoodStatus"
       className="input"
+      value={form.parenthoodStatus||""}
       onChange={handleChange}
     >
       <option value="">Parenthood Status</option>
@@ -295,6 +524,7 @@ const removeDocument = (index) => {
       <input
         type="checkbox"
         name="hasSponsor"
+        checked={form.hasSponsor}
         onChange={handleChange}
       />
       <label>Has Sponsor</label>
@@ -303,6 +533,8 @@ const removeDocument = (index) => {
     {form.hasSponsor && (
       <input
         name="sponsorName"
+        type="text"
+        value={form.sponsorName}
         placeholder="Sponsor Name"
         className="input"
         onChange={handleChange}
@@ -315,12 +547,16 @@ const removeDocument = (index) => {
         <input
           name="guardianName"
           placeholder="Guardian Full Name"
+          type="text"
+          value={form.guardianName}
           className="input"
           onChange={handleChange}
         />
 
         <input
           name="guardianRelationship"
+          type="text"
+          value={form.guardianRelationship}
           placeholder="Relationship with Guardian (e.g Uncle, Aunt)"
           className="input"
           onChange={handleChange}
@@ -329,6 +565,8 @@ const removeDocument = (index) => {
         <input
           name="guardianPhone"
           placeholder="Guardian Phone Number"
+          type="text"
+          value={form.guardianPhone}
           className="input"
           onChange={handleChange}
         />
@@ -347,13 +585,6 @@ const removeDocument = (index) => {
         Siblings in Education
       </h2>
 
-      <button
-        type="button"
-        onClick={addSibling}
-        className="bg-blue-600 text-white px-3 py-1 rounded-lg"
-      >
-        + Add Sibling
-      </button>
     </div>
 
     {form.siblings.map((sib, index) => (
@@ -431,12 +662,22 @@ const removeDocument = (index) => {
           )}
         </div>
       </div>
+      
     ))}
+  <div className="flex justify-end">
+      <button
+        type="button"
+        onClick={addSibling}
+        className="bg-blue-600 text-white  px-3 py-1 rounded-lg"
+      >
+        + Add Sibling
+      </button>
+  </div>
 
   </div>
 )}
           {/* STEP 6 - DOCUMENTS */}
-{step === 5 && (
+    {step === 5 && (
   <div className="space-y-8">
 
     {/* HEADER */}
@@ -447,7 +688,11 @@ const removeDocument = (index) => {
 
       <p className="text-sm text-slate-500 mt-2">
         Upload all required supporting documents clearly.
-        Accepted formats include PDF, JPG, and PNG.
+        Accepted formats include PDF, JPG, PNG and JPEG.
+      </p>
+
+      <p className="text-blue-600 mt-2">
+        Select the document type, then upload a clear photo or scanned copy.
       </p>
     </div>
 
@@ -461,12 +706,12 @@ const removeDocument = (index) => {
 
         <li>
           <span className="text-red-600 font-bold">*</span>{" "}
-          Birth Certificate / ID Photo (Mandatory)
+          Birth Certificate / National ID Photo (Mandatory)
         </li>
 
         {Number(form.Age) >= 18 && (
           <li>
-            Copy of Applicant ID Card and Voter's Card
+            Photo of Applicant ID Card and Voter's Card
           </li>
         )}
 
@@ -478,7 +723,15 @@ const removeDocument = (index) => {
         </li>
 
         <li>
+          Photo of Burial Certificate / Burial Permit
+        </li>
+
+        <li>
           Latest Payment Receipt showing Fee Balance
+        </li>
+
+        <li>
+          Photo of listed siblings birth certificate or ID card
         </li>
 
         <li>
@@ -514,94 +767,193 @@ const removeDocument = (index) => {
           Admission Letter for New Students
         </li>
 
+        <li>
+          A letter from the chief, church and from the applicant
+          <span className="text-red-400">
+            {" "} (Only for scholarship applicants)
+          </span>
+        </li>
+
       </ul>
     </div>
 
+    
     {/* DOCUMENT INPUTS */}
     <div className="space-y-5">
 
-      {form.documents?.map((doc, index) => (
-        <div
-          key={index}
-          className="border border-slate-200 rounded-2xl p-5 bg-slate-50"
-        >
+      {form.documents?.map((doc, index) => {
 
-          {/* TOP ROW */}
-          <div className="flex flex-col md:flex-row gap-3 items-center">
+        const selectedDocuments = form.documents.map((d) => d.name);
 
-            {/* DOCUMENT NAME */}
-            <input
-              type="text"
-              placeholder="Enter document name"
-              value={doc.name}
-              onChange={(e) =>
-                handleDocumentChange(
-                  index,
-                  "name",
-                  e.target.value
-                )
-              }
-              className="input flex-1"
-            />
+        return (
+          <div
+            key={index}
+            className="border border-slate-200 rounded-2xl p-5 bg-slate-50"
+          >
 
-            {/* FILE INPUT */}
-            <input
-              type="file"
-              onChange={(e) =>
-                handleDocumentChange(
-                  index,
-                  "file",
-                  e.target.files[0]
-                )
-              }
-              className="input flex-1"
-            />
+            {/* TOP ROW */}
+            <div className="flex flex-col md:flex-row gap-3 items-center">
 
-            {/* ADD BUTTON */}
-            {index === form.documents.length - 1 && (
-              <button
-                type="button"
-                onClick={addDocument}
-                className="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-3 rounded-xl font-medium whitespace-nowrap"
+              {/* DOCUMENT NAME */}
+              <select
+                value={doc.name}
+                onChange={(e) =>
+                  handleDocumentChange(
+                    index,
+                    "name",
+                    e.target.value
+                  )
+                }
+                className="input flex-1"
               >
-                Add
-              </button>
+                <option value="">
+                  Select document type
+                </option>
+
+                {documentOptions.map((option, i) => (
+                  <option
+                    key={i}
+                    value={option}
+                    disabled={
+                      selectedDocuments.includes(option) &&
+                      doc.name !== option
+                    }
+                  >
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              {/* FILE INPUT */}
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => {
+
+                  if (!doc.name) {
+                    alert("Please select document type first");
+                    return;
+                  }
+
+                  handleFileUpload(index, e);
+                }}
+                className="input flex-1"
+              />
+
+              {/* ADD BUTTON */}
+              {index === form.documents.length - 1 && (
+                <button
+                  type="button"
+                  onClick={() => {
+
+                    if (!doc.name) {
+                      alert("Please select document type");
+                      return;
+                    }
+
+                    if (!doc.file) {
+                      alert("Please upload file first");
+                      return;
+                    }
+
+                    addDocument();
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-3 rounded-xl font-medium whitespace-nowrap"
+                >
+                  Add
+                </button>
+              )}
+
+            </div>
+
+            {/* FILE PREVIEW */}
+            {doc.file && (
+              <div className="mt-3">
+                <p className="text-sm text-green-600">
+                  Selected File: {doc.fileName}
+                </p>
+              </div>
+            )}
+
+            {/* REMOVE BUTTON */}
+            {form.documents.length > 1 && (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => removeDocument(index)}
+                  className="text-red-500 hover:text-red-700 text-sm font-medium"
+                >
+                  Remove Document
+                </button>
+              </div>
             )}
 
           </div>
-
-          {/* FILE PREVIEW */}
-          {doc.file && (
-            <div className="mt-3">
-              <p className="text-sm text-green-600">
-                Selected File: {doc.file.name}
-              </p>
-            </div>
-          )}
-
-          {/* REMOVE BUTTON */}
-          {form.documents.length > 1 && (
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={() => removeDocument(index)}
-                className="text-red-500 hover:text-red-700 text-sm font-medium"
-              >
-                Remove Document
-              </button>
-            </div>
-          )}
-
-        </div>
-      ))}
+        );
+      })}
 
     </div>
 
   </div>
 )}
+         {/* STEP 7- DOCUMENT REVIEW */}
+{step === 6 && (
+  <div className="space-y-8">
 
+    <div>
+      <h2 className="text-2xl font-bold text-slate-800">
+        Review Uploaded Documents
+      </h2>
+
+      <p className="text-sm text-slate-500 mt-1">
+        Confirm that all uploaded documents are correct before submitting.
+      </p>
+    </div>
+
+    {/* DOCUMENT GRID */}
+    <div className="grid md:grid-cols-2 gap-5">
+
+      {form.documents.map((doc, index) => (
+        <div
+          key={index}
+          className="border rounded-xl p-4 bg-white shadow-sm"
+        >
+
+          {/* DOCUMENT NAME */}
+          <p className="font-semibold text-slate-700 mb-2">
+            {doc.name || "Unnamed Document"}
+          </p>
+
+          {/* IMAGE PREVIEW */}
+              {doc.file ? (
+  doc.fileType?.startsWith("image/") ? (
+    <img
+      src={doc.preview}
+      alt={doc.name}
+      className="w-full h-40 object-cover rounded-lg border"
+    />
+  ) : (
+    <div className="w-full h-40 flex items-center justify-center bg-gray-100 rounded-lg border">
+      <p className="text-sm text-gray-600">
+        {doc.fileName}
+      </p>
+    </div>
+  )
+) : (
+  <div className="w-full h-40 flex items-center justify-center bg-red-50 rounded-lg border">
+    <p className="text-sm text-red-500">
+      No file uploaded
+    </p>
+  </div>
+)}
+                  </div>
+                ))}
+
+              </div>
+            </div>
+          )}
           {/* BUTTONS */}
-          <div className="flex justify-between pt-6">
+          <div className="flex justify-center gap-12 pt-6">
             {step > 0 && (
               <button type="button" onClick={back} className="btn">
                 Back
@@ -613,7 +965,7 @@ const removeDocument = (index) => {
                 Next
               </button>
             ) : (
-              <button type="submit" className="btn-primary">
+              <button type="button" onClick={submit} className="btn-primary">
                 Submit Application
               </button>
             )}
