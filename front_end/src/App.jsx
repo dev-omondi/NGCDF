@@ -8,6 +8,7 @@ import {Route,Routes} from "react-router-dom"
 import AdminDashboard from "@/dashboard/AdminDashboard"
 import Protectpage from './pages/Protectpage'
 import ApplicationForm from './pages/Applicationpage'
+import Applicantsdashboard from "@/dashboard/Applicantsdashboard"
 const App = () => {
   return (
     <div>
@@ -17,6 +18,7 @@ const App = () => {
           <Route path='/login' element={<Loginpage/>}/>
           <Route path='/register' element={<Registerpage/>}/>
           <Route path='/bursary/application' element={<ApplicationForm/>}/>
+          <Route path='/applicants/dashboard' element={<Applicantsdashboard/>}/>
           <Route element={<Protectpage/>}>
           <Route path='/admin/dashboard' element={<AdminDashboard/>}/>
           </Route>

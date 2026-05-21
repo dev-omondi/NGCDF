@@ -75,6 +75,7 @@ const Navbar = () => {
 
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
+                to={"/applicants/dashboard"}
               >
                 Funding
               </Link>

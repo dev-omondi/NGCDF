@@ -12,7 +12,11 @@ const applicationApi= usersApi.injectEndpoints({
                 body:data
             }),
             invalidatesTags:["Applications"]
+        }),
+        applicants:builder.query({
+            query:()=>`${APPLICATION_URL}`,
+            providesTags:["Applicants"]
         })
     })
 })
-export const{useApplyMutation}=applicationApi
+export const{useApplyMutation,useApplicantsQuery}=applicationApi

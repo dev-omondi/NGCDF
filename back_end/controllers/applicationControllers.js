@@ -45,30 +45,63 @@ import expressAsyncHandler from "express-async-handler";
     } = req.body;
 
     // ================= BASIC VALIDATION =================
-    if (!burSaryType) throw new Error("Bursary type required");
-    if (!ward) throw new Error("Ward required");
-    if (!fullName) throw new Error("Full name required");
-    if (!gender) throw new Error("Gender required");
-    if (!institutionName) throw new Error("Institution name required");
-    if (!levelOfStudy) throw new Error("Level of study required");
-    if (!admissionNo) throw new Error("Admission number required");
+    if (!burSaryType){
+      res.status(400)
+      throw new Error("Bursary type required");
+    } 
+    if (!ward){
+      res.status(400)
+      throw new Error("ward is required")
+    }
+    if (!fullName){
+      res.status(400)
+       throw new Error("Full name required");
+    }
+    if (!gender) {
+      res.status(400)
+      throw new Error("Gender required");
+    }
+    if (!institutionName) {
+      res.status(400)
+      throw new Error("Institution name required");
+    }
+    if (!levelOfStudy){
+      res.status(400)
+       throw new Error("Level of study required");
+    }
+    if (!admissionNo) {
+      res.status(400)
+      throw new Error("Admission number required");
+    }
 
-    if (totalFees == null) throw new Error("Total fees required");
-    if (feeBalance == null) throw new Error("Fee balance required");
-    if (Age == null) throw new Error("Age is required");
+    if (totalFees == null) {
+      res.status(400)
+      throw new Error("Total fees required");
+    }
+    if (feeBalance == null) {
+      res.status(400)
+      throw new Error("Fee balance required");
+    }
+    if (Age == null){
+      res.status(400)
+       throw new Error("Age is required");
+    }
 
     // ================= PHONE VALIDATION =================
     const phoneRegex = /^(07|01|2547|2541)\d{8}$/;
     if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+      res.status(400)
       throw new Error("Invalid phone number");
     }
 
     // ================= FEES VALIDATION =================
     if (totalFees < 0 || feeBalance < 0) {
+      res.status(400)
       throw new Error("Fees cannot be negative");
     }
 
     if (Number(feeBalance) > Number(totalFees)) {
+      res.status(400)
       throw new Error("Fee balance cannot exceed total fees");
     }
 
@@ -81,10 +114,12 @@ import expressAsyncHandler from "express-async-handler";
 
     if (Age < 18) {
       if (!birthCertificate?.file) {
+        res.status(400)
         throw new Error("Applicants under 18 must provide birth certificate");
       }
     } else {
       if (!birthCertificate?.file && !idNo && !idCopy?.file) {
+        res.status(400)
         throw new Error(
           "Applicants 18+ must provide ID number or birth certificate"
         );
@@ -93,6 +128,7 @@ import expressAsyncHandler from "express-async-handler";
 
     // ================= LEVEL VALIDATION =================
     if (levelOfStudy === "Secondary" && !studentClass) {
+      res.status(400)
       throw new Error("Secondary students must provide class");
     }
 
@@ -100,6 +136,7 @@ import expressAsyncHandler from "express-async-handler";
       (levelOfStudy === "University" || levelOfStudy === "College") &&
       !yearOfStudy
     ) {
+      res.status(400)
       throw new Error(
         "University/College students must provide year of study"
       );
@@ -107,6 +144,7 @@ import expressAsyncHandler from "express-async-handler";
 
     // ================= GUARDIAN VALIDATION =================
     if (!fatherName && !motherName && !guardianName) {
+      res.status(400)
       throw new Error("Provide at least one parent or guardian information");
     }
 
@@ -117,9 +155,8 @@ import expressAsyncHandler from "express-async-handler";
     });
 
     if (existing) {
-      return res.status(400).json({
-        message: "Application already exists for this student",
-      });
+      return res.status(400)
+      throw new Error("Application already exists for this student");
     }
 
     // ================= CREATE APPLICATION =================
