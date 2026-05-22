@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useApplicantsQuery } from "@/applicationRedux/baseAppslice";
+import { useNavigate } from "react-router-dom";
+
 import {
   Search,
   Users,
@@ -7,22 +9,24 @@ import {
   XCircle,
   Clock,
   Wallet,
-  ClipboardCheck,
+  Eye,
 } from "lucide-react";
 
 const ApplicantsPage = () => {
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
-  const [page,setPage]=useState(1)
+  const [page, setPage] = useState(1);
+
+  const navigate = useNavigate();
 
   // BACKEND FILTER
-  const { data, isLoading, isError } =
-    useApplicantsQuery({status,page,limit:20});
-    console.log(data)
+  const { data, isLoading, isError } = useApplicantsQuery({
+    status,
+    page,
+    limit: 20,
+  });
 
-    const applicants=data?.data||[]
-
-    console.log("applicants",applicants)
+  const applicants = data?.data || [];
 
   // SEARCH FILTER
   const filtered = applicants?.filter((app) => {
@@ -41,10 +45,6 @@ const ApplicantsPage = () => {
     {
       label: "Funds Allocation",
       icon: Wallet,
-    },
-    {
-      label: "Evaluate Applicants",
-      icon: ClipboardCheck,
     },
   ];
 
@@ -74,15 +74,11 @@ const ApplicantsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-100">
-
       {/* HEADER */}
       <div className="bg-white border-b sticky top-0 z-20 shadow-sm">
-
         <div className="max-w-7xl mx-auto px-4 lg:px-6 py-5">
-
           {/* TOP SECTION */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-
             {/* TITLE */}
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">
@@ -112,9 +108,7 @@ const ApplicantsPage = () => {
 
           {/* CENTER NAVIGATION + FILTERS */}
           <div className="flex justify-center mt-6">
-
             <div className="flex flex-wrap items-center justify-center gap-3">
-
               {/* NAVIGATION */}
               {navLinks.map((link) => {
                 const Icon = link.icon;
@@ -122,6 +116,11 @@ const ApplicantsPage = () => {
                 return (
                   <button
                     key={link.label}
+                    onClick={() => {
+                      if (link.label === "Funds Allocation") {
+                        navigate("/admin/funds");
+                      }
+                    }}
                     className="
                       flex items-center gap-2
                       px-5 py-2.5
@@ -176,7 +175,6 @@ const ApplicantsPage = () => {
 
       {/* PAGE CONTENT */}
       <div className="max-w-7xl mx-auto p-4 lg:p-6">
-
         {/* LOADING */}
         {isLoading && (
           <div className="bg-white rounded-2xl border p-6 text-slate-500 shadow-sm">
@@ -194,10 +192,8 @@ const ApplicantsPage = () => {
         {/* TABLE */}
         {!isLoading && !isError && (
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-
             {/* TABLE HEADER */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-5 border-b bg-slate-50">
-
               <div>
                 <h2 className="text-lg font-semibold text-slate-800">
                   Applicants Records
@@ -215,9 +211,7 @@ const ApplicantsPage = () => {
 
             {/* RESPONSIVE TABLE */}
             <div className="overflow-x-auto">
-
               <table className="min-w-full text-sm">
-
                 {/* TABLE HEADER */}
                 <thead className="bg-slate-100 text-slate-700">
                   <tr>
@@ -236,7 +230,7 @@ const ApplicantsPage = () => {
                     </th>
 
                     <th className="px-6 py-4 text-left font-semibold">
-                      Ward
+                      Category
                     </th>
 
                     <th className="px-6 py-4 text-left font-semibold">
@@ -246,16 +240,19 @@ const ApplicantsPage = () => {
                     <th className="px-6 py-4 text-left font-semibold">
                       Allocation
                     </th>
+
+                    <th className="px-6 py-4 text-left font-semibold">
+                      View
+                    </th>
                   </tr>
                 </thead>
 
                 {/* TABLE BODY */}
                 <tbody>
-
                   {filtered?.length === 0 && (
                     <tr>
                       <td
-                        colSpan={7}
+                        colSpan={8}
                         className="text-center py-16 text-slate-400"
                       >
                         No applicants found
@@ -295,8 +292,8 @@ const ApplicantsPage = () => {
                       </td>
 
                       {/* WARD */}
-                      <td className="px-6 py-5 text-slate-600">
-                        {app.ward}
+                      <td className="px-6 py-5 text-blue-800 capitalize font-semibold">
+                        {app.burSaryType}
                       </td>
 
                       {/* STATUS */}
@@ -326,9 +323,31 @@ const ApplicantsPage = () => {
                           ? `KES ${app.allocatedAmount.toLocaleString()}`
                           : "KES 0"}
                       </td>
+
+                      {/* VIEW BUTTON */}
+                      <td className="px-6 py-5">
+                        <button
+                          onClick={() =>
+                            navigate(`/applicant/${app._id}`)
+                          }
+                          className="
+                            flex items-center gap-2
+                            bg-blue-600
+                            hover:bg-blue-700
+                            text-white
+                            px-4 py-2
+                            rounded-xl
+                            text-sm
+                            font-medium
+                            transition
+                          "
+                        >
+                          <Eye size={16} />
+                          View
+                        </button>
+                      </td>
                     </tr>
                   ))}
-
                 </tbody>
               </table>
             </div>

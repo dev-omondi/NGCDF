@@ -24,6 +24,8 @@ import expressAsyncHandler from "express-async-handler";
 
       fatherName,
       motherName,
+      fatherPhone,
+      motherPhone,
       guardianName,
       guardianRelationship,
       guardianPhone,

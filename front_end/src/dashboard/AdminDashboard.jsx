@@ -10,7 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
-
+import { useApplicantsQuery } from "@/applicationRedux/baseAppslice";
 // ─── API Service Layer ────────────────────────────────────────────────────────
 // Set BASE_URL to your actual backend (e.g. https://api.muhoroni-bursary.go.ke)
 // Uncomment the real fetch block and remove the mock block when backend is ready.

@@ -5,6 +5,7 @@ import { useDispatch,useSelector } from "react-redux";
 import { useApplyMutation } from "@/applicationRedux/baseAppslice";
 import { useUploadMutation } from "@/imageRedux/imageBase";
 import { useNavigate } from "react-router-dom";
+import { NumericFormat } from "react-number-format";
 const steps = [
   "Personal Info",
   "Location",
@@ -447,19 +448,39 @@ const removeSibling = (index) => {
               className="input"
                onChange={handleChange} />
 
-                <input name="totalFees" 
-                placeholder="Total Fees" 
-                type="number"
+                <NumericFormat
+                thousandSeparator
+                allowNegative={false}
+                prefix="KES "
+                name="totalFees"
+                placeholder="Total Fees"
                 className="input"
                 value={form.totalFees}
-                onChange={handleChange} />
+                onValueChange={(values) => {
+                  dispatch(
+                    updateFormData({
+                      totalFees: values.value, 
+                    })
+                  );
+                }}
+              />
 
-              <input name="feeBalance"
-               placeholder="Fee Balance"
-                type="number" 
-                className="input"
-                value={form.feeBalance}
-                 onChange={handleChange} />
+             <NumericFormat
+              thousandSeparator
+              allowNegative={false}
+              prefix="KES "
+              name="feeBalance"
+              placeholder="Fee Balance"
+              className="input"
+              value={form.feeBalance}
+              onValueChange={(values) => {
+                dispatch(
+                  updateFormData({
+                    feeBalance: values.value,
+                  })
+                );
+              }}
+            />
             </div>
           )}
 
