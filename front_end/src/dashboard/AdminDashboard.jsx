@@ -10,6 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 import { useApplicantsQuery } from "@/applicationRedux/baseAppslice";
 // ─── API Service Layer ────────────────────────────────────────────────────────
 // Set BASE_URL to your actual backend (e.g. https://api.muhoroni-bursary.go.ke)
@@ -151,18 +152,22 @@ const StatCard = ({ icon: Icon, title, value, trend, color = "blue", loading, fo
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard"                         },
-  { icon: FileText,        label: "Applications",  badge: 1284        },
-  { icon: Users,           label: "Applicants"                        },
+  { icon: FileText,        label: "Applicants",  badge: 1284        },
+  { icon: Users,label: "Users",path:"/users"},
   { icon: Clock,           label: "Pending Reviews", badge: 218       },
   { icon: CheckCircle,     label: "Approved"                          },
   { icon: XCircle,         label: "Rejected"                          },
-  { icon: Wallet,          label: "Disbursements"                     },
+  { icon: Wallet,          label: "Allocations"                     },
   { icon: BarChart2,       label: "Reports"                           },
   { icon: Bell,            label: "Notifications", badge: 5           },
   { icon: Settings,        label: "Settings"                          },
 ];
 
-const Sidebar = ({ open, onClose, activeNav, setActiveNav }) => (
+const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
+  
+  const navigate=useNavigate()
+  return (
+  
   <>
     {open && (
       <div className="fixed inset-0 bg-slate-900/50 z-30 lg:hidden backdrop-blur-sm" onClick={onClose} />
@@ -198,11 +203,11 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) => (
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
         <p className="text-blue-500 text-[9px] font-bold uppercase tracking-widest px-3 mb-3">Main Menu</p>
-        {navItems.map(({ icon: Icon, label, badge }) => {
+        {navItems.map(({ icon: Icon, label, badge,path }) => {
           const isActive = activeNav === label;
           return (
             <button key={label}
-              onClick={() => { setActiveNav(label); onClose(); }}
+              onClick={() => { setActiveNav(label); navigate(path); onClose(); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
                 ${isActive
                   ? "bg-blue-600/70 text-white shadow-lg shadow-blue-900/40"
@@ -238,7 +243,7 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) => (
       </div>
     </aside>
   </>
-);
+)};
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 const Navbar = ({ onMenuClick, profile, notifications, profileLoading, notifLoading }) => {
@@ -616,10 +621,16 @@ const QuickActions = () => {
   );
 };
 
-// ─── Root App ─────────────────────────────────────────────────────────────────
+
+// @description .....................................this the main function that is rendered
+
+
 export default function BursaryDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav,   setActiveNav]   = useState("Dashboard");
+
+  {/**for navigating to pages */}
+  const navigate=useNavigate()
 
   const [profile,       setProfile]   = useState(null);
   const [notifications, setNotifs]    = useState(null);

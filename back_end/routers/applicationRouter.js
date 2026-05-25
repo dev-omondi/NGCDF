@@ -1,7 +1,7 @@
 
 import express from "express"
 const router=express.Router()
-
+import { authToken,roleAuth } from "../middleawre/authToken.js"
 import{createApplication,
     getApplicants,
     getApllicant,
@@ -10,7 +10,7 @@ import{createApplication,
 router.route("/").post(createApplication)
 router.route("/:id").get(getApllicant)
 router.route("/:id").put(updateApplicantsStatus)
-router.route("/").get(getApplicants)
+router.route("/").get(authToken,roleAuth("admin","reviewer","finance"),getApplicants)
 
 export default router
 

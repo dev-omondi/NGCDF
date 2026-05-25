@@ -83,16 +83,23 @@ const logoutUser=expressAsyncHandler(async(req,res)=>{
 //..@api---------------------------------------GET/api/users/
 //..@access-------------------------------------private
 const getUsers=expressAsyncHandler(async(req,res)=>{
-    const Users=await Users.find().select("-password")
-    res.status(200).json(Users)
+    if(req.user.role!=="admin"){
+        res.status(403)
+        throw new Error("You are not allowed to access this route")
+    }
+    const users=await Users.find().select("-password")
+    res.status(200).json(users)
 })
 
 //..@description-------------------------------get a single user
 //..@pai---------------------------------------GET/api/user:id
 //..@access---------------------------------------private
 const getUser=expressAsyncHandler(async(req,res)=>{
-    
-    const user=req.user
+    if(req.user.role!=="admin"){
+        res.status(403)
+        throw new Error("You are not allowed to access this route")
+    }
+    const user=await Users.findById(req.params.id)
     if(!user){
         res.status(404)
         throw new Error('user not found')
@@ -103,7 +110,10 @@ const getUser=expressAsyncHandler(async(req,res)=>{
         firstName:user.firstName,
         secondName:user.secondName,
         role:user.role,
-        department:user.department
+        phoneNo:user.phoneNo,
+        image:user.image,
+        department:user.department,
+        craetedAt:user.createdAt
     })
 })
 //..@description-----------------------------delete the user details
@@ -139,9 +149,12 @@ const updateUser=expressAsyncHandler(async(req,res)=>{
         res.status(404)
         throw new Error("User not found")
     }
+    console.log("image from userController",req.body.image)
     user.firstName=req.body.firstName||user.firstName
     user.secondName=req.body.secondName||user.secondName
     user.email=req.body.email||user.email
+    user.image=req.body.image||user.image
+    user.phoneNo=req.body.phoneNo||user.phoneNo
 
     if(req.body.password){
         user.password=req.body.password
@@ -153,8 +166,10 @@ const updateUser=expressAsyncHandler(async(req,res)=>{
         secondName:updatedUser.secondName,
         _id:updatedUser._id,
         email:updatedUser.email,
+        phoneNo:user.phoneNo,
         role:updatedUser.role,
-        department:updateUser.department
+        department:updatedUser.department,
+        createdAt:updatedUser.createdAt
     })
 })
 
@@ -163,7 +178,7 @@ const updateUser=expressAsyncHandler(async(req,res)=>{
 //..access---------------------------------private and forbiden
 
 const updateRole=expressAsyncHandler(async(req,res)=>{
-    const user=await Users.findById(req.params._id)
+    const user=await Users.findById(req.params.id)
     if(!user){
         res.status(404)
         throw new Error("User not found");
@@ -182,15 +197,29 @@ const updateRole=expressAsyncHandler(async(req,res)=>{
         secondName:updatedRole.secondName,
         _id:updatedRole._id,
         email:updatedRole.email,
+        phoneNo:user.phoneNo,
+        image:user.image,
         role:updatedRole.role,
         department:updatedRole.department
     })
+})
+//..@description---------------------------------------get a single user who is logged in 
+//..api------------------------------------------------PUT/api/user/:id
+//..@access--------------------------------------------private
+const getProfile=expressAsyncHandler(async(req,res)=>{
+    const user=req.user
+    if(!user){
+        res.status(401)
+        throw new Error("Unauthorized cant not access this route")
+    }
+    res.status(200).json(user)
 })
 
 export{registerUser,
         loginUser,
         getUsers,
         getUser,
+        getProfile,
         deleteUser,
         updateRole,
         updateUser,

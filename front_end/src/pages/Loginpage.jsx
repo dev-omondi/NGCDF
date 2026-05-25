@@ -25,10 +25,15 @@ const Signinpage = () => {
     if(isLoading)return
     console.log(userInfor?.role)
       if(userInfor){
-        if(userInfor.role==="admin"){
-          navigate("/admin/dashboard")
-        }else{
-          navigate("/login")
+        switch(userInfor.role){
+          case "admin":
+            navigate("/admin/dashboard")
+            break;
+          case "reviewer":
+            navigate("/applicants/dashboard") 
+            break;
+          default:
+            navigate("/")  
         }
       }
     },[userInfor])

@@ -7,6 +7,7 @@ import {registerUser,
         getUser,
         deleteUser,
         updateRole,
+        getProfile,
         logoutUser,
         updateUser} from "../controllers/usersController.js"
 import { registerSchema } from "../config/authVallidator.js";        
@@ -18,8 +19,10 @@ router.route("/auth").post(loginUser)
 router.route("/logout").post(logoutUser)
 //seperate user self-routes
 router.route("/profile")
-                .get(authToken,getUsers)
+                .get(authToken,getProfile)
                 .put(authToken,updateUser)
+
+router.route("/:id").get(authToken,roleAuth("admin"),getUser)
 
 //forbiden routes for admin and allowed few
 router.route("/").get(authToken,roleAuth("admin"),getUsers)

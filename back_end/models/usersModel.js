@@ -18,7 +18,7 @@ const userSchema=mongoose.Schema({
         required:true,
         unique:true,
         trim:true,
-        lowwerCase:true
+        lowercase:true
     },
     password:{
         type:String,
@@ -26,12 +26,19 @@ const userSchema=mongoose.Schema({
     },
     role:{
         type:String,
-        enum:["admin","staff","citizen"],
+        enum:["admin","reviewer","citizen","finance","technician"],
         default:"citizen"
+    },
+    phoneNo:{
+        type:String
+    },
+    image:{
+        type:String
     },
     department:{
         type:String,
-        enum:["Bursary","Project","Finance","ICT","Administration"],
+        lowercase:true,
+        enum:[""],
         default:null
     }
 },{timestamps:true})
