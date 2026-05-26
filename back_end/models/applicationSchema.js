@@ -74,16 +74,24 @@ const applicationSchema = new mongoose.Schema(
     documents: [
       {
         name: { type: String },
-        file: { type: String, required: true }, // URL or path
+        file: { type:[String], required: true }, // URL or path
       },
     ],
 
     status: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected","Under Review"],
+      enum: ["Pending", "Approved", "Rejected","Under-Review"],
       default: "Pending",
     },
-
+    reviewedBy:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Users",
+      default:null
+    },
+    reviewStartedAt: {
+      type: Date,
+      default: null,
+    },
     ApprovedAmount: { type: Number, default: 0 },
     remarks: { type: String },
   },

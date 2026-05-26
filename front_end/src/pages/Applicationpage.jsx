@@ -3,7 +3,7 @@ import { useState } from "react";
 import { updateFormData,resetApplicationForm,setCurrentStep } from "@/applicationRedux/applicationSlice";
 import { useDispatch,useSelector } from "react-redux";
 import { useApplyMutation } from "@/applicationRedux/baseAppslice";
-import { useUploadMutation } from "@/imageRedux/imageBase";
+import { useUploadsMutation ,useDeleteImageMutation} from "@/imageRedux/imageBase";
 import { useNavigate } from "react-router-dom";
 import { NumericFormat } from "react-number-format";
 const steps = [
@@ -17,13 +17,35 @@ const steps = [
 ];
 
 const ApplicationForm = () => {
+  const [previewModal, setPreviewModal] = useState({
+  open: false,
+  image: "",
+  docIndex: null,
+  fileIndex: null,
+  fileName: "",
+});
 
+const openPreview = (
+  image,
+  docIndex,
+  fileIndex,
+  fileName
+) => {
+  setPreviewModal({
+    open: true,
+    image,
+    docIndex,
+    fileIndex,
+    fileName,
+  });
+};
   const dispatch=useDispatch()
   const navigate=useNavigate()
   const {formData:form,currentStep:step}=useSelector((state)=>state.application)
 
   const[apply,{isLoading}]=useApplyMutation()
-  const [upload,{isLoading:uploadLoading}]=useUploadMutation()
+  const [uploads,{isLoading:uploadLoading}]=useUploadsMutation()
+  const [deleteImage] = useDeleteImageMutation();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,19 +57,18 @@ const ApplicationForm = () => {
    )
   };
   {/**validating document upload so that the applicant must fill the document name */}
-    const validateDocuments = () => {
-    for (let i = 0; i < form.documents.length; i++) {
-      const doc = form.documents[i];
-      if (!doc.name) {
-        alert(`Select document type for document ${i + 1}`);
-        return false;
-      }
-      if (!doc.file) {
-        alert(`Upload file for ${doc.name}`);
-        return false;
-      }
+ const validateDocuments = () => {
+  for (let i = 0; i < form.documents.length; i++) {
+    const doc = form.documents[i];
+    if (!doc.name) {
+      alert(`Select document type for document ${i + 1}`);
+      return false;
     }
-
+    if (!doc.files || doc.files.length === 0) {
+      alert(`Upload files for ${doc.name}`);
+      return false;
+    }
+  }
   return true;
 };
 
@@ -122,19 +143,19 @@ const removeSibling = (index) => {
 };
 
   const addDocument = () => {
-  dispatch(
-    updateFormData({
-      documents: [
-        ...form.documents,
-        {
-          name: "",
-          file: null,
-          preview: null,
-        },
-      ],
-    })
-  );
-};
+      dispatch(
+        updateFormData({
+          documents: [
+            ...form.documents,
+            {
+              name: "",
+              files: [],
+              previews: [],
+            },
+          ],
+        })
+      );
+    };
 
   const removeDocument = (index) => {
   const updated = form.documents.filter(
@@ -166,44 +187,109 @@ const removeSibling = (index) => {
     };
 
   {/**fuctionality for uploading image to the cloud */}
-      const handleFileUpload = async (index, e) => {
-  const file = e.target.files[0];
-
-  if (!file) return;
-
+     const handleFileUpload = async (index, e) => {
+  const selectedFiles = Array.from(e.target.files);
+  if (!selectedFiles.length) return;
   try {
-    const imageData = new FormData();
+    const formData = new FormData();
+    // append multiple files
+    selectedFiles.forEach((file) => {
+      formData.append("files", file);
+    });
+    const res = await uploads(formData).unwrap(); 
 
-    // MUST match multer field name
-    imageData.append("file", file);
-
-    const res = await upload(imageData).unwrap();
-
+    console.log('image upload response',res)
+    // res should return array of URLs
     const updated = form.documents.map((doc, i) =>
-  i === index
-    ? {
-        ...doc,
-        file: res.url,
-        r2Key: res.key,
-        preview: URL.createObjectURL(file),
-        fileName: file.name,
-        fileType: file.type,
-      }
-    : doc
-);
+        i === index
+          ? {
+              ...doc,
 
-    dispatch(
-      updateFormData({
-        documents: updated,
-      })
-    );
+        // store uploaded cloud urls
+        files: [
+          ...(doc.files || []),
+          ...res.files.map((f) => f.url),
+        ],
+
+        // optional keys from backend
+        fileKeys: [
+          ...(doc.fileKeys || []),
+          ...res.files.map((f) => f.key),
+        ],
+
+        // local preview urls
+        previews: [
+          ...(doc.previews || []),
+          ...selectedFiles.map((f) =>
+            URL.createObjectURL(f)
+          ),
+        ],
+
+        // file names
+        fileNames: [
+          ...(doc.fileNames || []),
+          ...selectedFiles.map((f) => f.name),
+        ],
+
+        // file mime types
+        fileTypes: [
+          ...(doc.fileTypes || []),
+          ...selectedFiles.map((f) => f.type),
+        ],
+              }
+            : doc
+        );
+
+            dispatch(updateFormData({ documents: updated }));
 
   } catch (error) {
     console.log(error);
   }
 };
-    {/**fuctionality fro creating application */}
 
+// functionality for deleting images
+  const handleDeleteFile = async (docIndex, fileIndex) => {
+  try {
+    const doc = form.documents[docIndex];
+    const key = doc.fileKeys[fileIndex];
+
+    if (!key) return;
+
+    // delete from cloud
+    await deleteImage(key).unwrap();
+
+    // update state
+    const updatedDocuments = form.documents.map((d, i) => {
+      if (i !== docIndex) return d;
+
+      return {
+        ...d,
+        files: d.files.filter((_, idx) => idx !== fileIndex),
+        fileKeys: d.fileKeys.filter((_, idx) => idx !== fileIndex),
+        previews: d.previews.filter((_, idx) => idx !== fileIndex),
+        fileNames: d.fileNames.filter((_, idx) => idx !== fileIndex),
+        fileTypes: d.fileTypes.filter((_, idx) => idx !== fileIndex),
+      };
+    });
+
+    dispatch(updateFormData({ documents: updatedDocuments }));
+
+    //  CLOSE PREVIEW MODAL AFTER DELETE
+    setPreviewModal({
+      open: false,
+      image: null,
+      docIndex: null,
+      fileIndex: null,
+      fileName: null,
+    });
+
+  } catch (error) {
+    console.log(error);
+    alert("Failed to delete image");
+  }
+};
+
+    {/**fuctionality fro creating application */}
     const submit = async (e) => {
     e.preventDefault();
       
@@ -801,20 +887,15 @@ const removeSibling = (index) => {
     
     {/* DOCUMENT INPUTS */}
     <div className="space-y-5">
-
       {form.documents?.map((doc, index) => {
-
         const selectedDocuments = form.documents.map((d) => d.name);
-
         return (
           <div
             key={index}
             className="border border-slate-200 rounded-2xl p-5 bg-slate-50"
           >
-
             {/* TOP ROW */}
             <div className="flex flex-col md:flex-row gap-3 items-center">
-
               {/* DOCUMENT NAME */}
               <select
                 value={doc.name}
@@ -846,16 +927,15 @@ const removeSibling = (index) => {
               </select>
 
               {/* FILE INPUT */}
-              <input
+             <input
                 type="file"
+                multiple
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={(e) => {
-
                   if (!doc.name) {
                     alert("Please select document type first");
                     return;
                   }
-
                   handleFileUpload(index, e);
                 }}
                 className="input flex-1"
@@ -872,11 +952,10 @@ const removeSibling = (index) => {
                       return;
                     }
 
-                    if (!doc.file) {
-                      alert("Please upload file first");
-                      return;
-                    }
-
+                   if (!doc.files || doc.files.length === 0) {
+                    alert("Please upload file first");
+                    return;
+                            }
                     addDocument();
                   }}
                   className="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-3 rounded-xl font-medium whitespace-nowrap"
@@ -934,7 +1013,7 @@ const removeSibling = (index) => {
     {/* DOCUMENT GRID */}
     <div className="grid md:grid-cols-2 gap-5">
 
-      {form.documents.map((doc, index) => (
+      {form.documents.map((doc,index) => (
         <div
           key={index}
           className="border rounded-xl p-4 bg-white shadow-sm"
@@ -946,32 +1025,70 @@ const removeSibling = (index) => {
           </p>
 
           {/* IMAGE PREVIEW */}
-              {doc.file ? (
-  doc.fileType?.startsWith("image/") ? (
+     {doc.files?.length > 0 ? (
+  <div className="mt-3 space-y-3">
+
+    {/* HEADER */}
+    <div className="flex items-center justify-between">
+      <p className="text-sm font-semibold text-slate-700">
+        Uploaded Files ({doc.files.length})
+      </p>
+
+      <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+        Uploaded
+      </span>
+    </div>
+
+    {/* FILE GRID */}
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      {doc.files.map((file, i) => (
+        <div
+  key={i}
+  onClick={() =>
+    openPreview(
+      doc.previews[i],
+      index,
+      i,
+      doc.fileNames?.[i]
+    )
+  }
+  className="relative group border rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition cursor-pointer"
+>
+{/* IMAGE */}
+  {doc.fileTypes?.[i]?.includes("image") ? (
     <img
-      src={doc.preview}
-      alt={doc.name}
-      className="w-full h-40 object-cover rounded-lg border"
+      src={doc.previews[i]}
+      className="w-full h-32 object-cover group-hover:scale-105 transition duration-300"
     />
   ) : (
-    <div className="w-full h-40 flex items-center justify-center bg-gray-100 rounded-lg border">
-      <p className="text-sm text-gray-600">
-        {doc.fileName}
+    <div className="h-32 flex items-center justify-center bg-slate-100">
+      <p className="text-sm text-slate-500">
+        PDF Document
       </p>
     </div>
-  )
+  )}
+     {/* DARK OVERLAY */}
+  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition" />
+
+  {/* FILE NAME */}
+  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[11px] px-2 py-2 truncate">
+    {doc.fileNames?.[i]}
+  </div>
+
+</div>
+      ))}
+    </div>
+  </div>
 ) : (
-  <div className="w-full h-40 flex items-center justify-center bg-red-50 rounded-lg border">
-    <p className="text-sm text-red-500">
-      No file uploaded
-    </p>
+  <div className="mt-3 p-4 border border-dashed rounded-xl text-center text-sm text-red-500 bg-red-50">
+    No files uploaded for this document
   </div>
 )}
-                  </div>
-                ))}
+    </div>
+        ))}
 
-              </div>
-            </div>
+      </div>
+  </div>
           )}
           {/* BUTTONS */}
           <div className="flex justify-center gap-12 pt-6">
@@ -993,7 +1110,76 @@ const removeSibling = (index) => {
           </div>
         </form>
       </div>
+      {previewModal.open && (
+  <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
 
+    <div className="bg-white rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+
+      {/* HEADER */}
+      <div className="flex items-center justify-between border-b px-6 py-4">
+        <div>
+          <h2 className="font-bold text-slate-800 text-lg">
+            Document Preview
+          </h2>
+           <p className="text-sm text-slate-500 truncate max-w-[250px] md:max-w-[500px]">
+            {previewModal.fileName}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() =>
+            setPreviewModal({
+              open: false,
+              image: "",
+              docIndex: null,
+              fileIndex: null,
+              fileName: "",
+            })
+          }
+          className="text-slate-500 hover:text-red-500 text-xl"
+        >
+          ✕
+        </button>
+      </div>
+      {/* IMAGE */}
+      <div className="bg-slate-100 flex items-center justify-center p-6 max-h-[75vh] overflow-auto">
+        <img
+          src={previewModal.image}
+          className="max-h-[70vh] w-auto rounded-2xl shadow-lg"
+        />
+      </div>
+       {/* FOOTER */}
+      <div className="flex items-center justify-end gap-3 border-t px-6 py-4 bg-white">
+        <button
+          type="button"
+          onClick={() =>
+            setPreviewModal({
+              open: false,
+              image: "",
+              docIndex: null,
+              fileIndex: null,
+              fileName: "",
+            })
+             }
+          className="px-5 py-2 rounded-xl border border-slate-300 hover:bg-slate-100"
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            handleDeleteFile(
+              previewModal.docIndex,
+                      previewModal.fileIndex
+                    )
+                  }
+                  className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl"
+                > Delete Image
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       {/* SIMPLE STYLES */}
       <style>{`
         .input {

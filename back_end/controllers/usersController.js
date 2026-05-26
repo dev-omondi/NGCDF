@@ -27,6 +27,7 @@ const registerUser=expressAsyncHandler(async(req ,res)=>{
         email:user.email,
         role:user.role,
         department:user.department,
+        image:user.image,
         _id:user._id
 })
 
@@ -60,6 +61,10 @@ const loginUser=expressAsyncHandler(async(req,res)=>{
         email:user.email,
         firstName:user.firstName,
         secondName:user.secondName,
+        department:user.department,
+        role:user.role,
+        image:user.image,
+        phoneNo:user.phoneNo,
         _id:user._id,
         role:user.role
     })

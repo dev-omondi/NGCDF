@@ -65,7 +65,7 @@ const initialState = {
     documents: [
       {
         name: "",
-        file:"",
+        file:[""],
         preview:null,
       },
     ],

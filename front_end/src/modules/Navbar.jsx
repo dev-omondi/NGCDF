@@ -112,11 +112,12 @@ const Navbar = () => {
                 </Link>
               </section>
             ) : (
-              <DropdownMenu>
+             <div className="flex flex-row gap-2 hover:bg-blue-100 px-3 py-1 rounded">
+                 <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none">
                     <Avatar className="h-10 w-10 border-2 border-blue-400 cursor-pointer">
-                      <AvatarImage src={userInfor?.profilePic} />
+                      <AvatarImage src={userInfor?.image} />
 
                       <AvatarFallback className="bg-blue-500 text-white">
                         {userInfor.firstName.charAt(0).toUpperCase()}
@@ -154,6 +155,15 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <section>
+                {
+                  <div className="text-sm  font-semibold">
+                    <p>{userInfor.firstName}</p>
+                    <p>{userInfor.secondName}</p>
+                  </div>
+                }
+              </section>
+             </div>
             )}
           </div>
 
@@ -174,12 +184,14 @@ const Navbar = () => {
 
             {/* USER DROPDOWN */}
             <div className="flex justify-end">
+              {console.log("profile",userInfor)}
               {userInfor? (
-                <DropdownMenu>
+                <div  className="flex flex-row gap-2 hover:bg-blue-100 px-3 py-1 rounded">
+                  <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="outline-none">
                       <Avatar className="h-10 w-10 border-2 border-blue-400">
-                        <AvatarImage src={userInfor.profilePic} />
+                        <AvatarImage src={userInfor.image} />
 
                         <AvatarFallback className="bg-blue-500 text-white">
                         {userInfor.firstName.charAt(0).toUpperCase()}
@@ -217,6 +229,16 @@ const Navbar = () => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <section>
+                  {
+                  <div className="text-sm  font-semibold">
+                    <p>{userInfor.firstName}</p>
+                    <p>{userInfor.secondName}</p>
+                  </div>
+                  }
+                </section>
+                </div>
+                
               ) : (
                 <Link
                   to={"/login"}

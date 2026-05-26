@@ -307,9 +307,18 @@ const getApplicants = expressAsyncHandler(async (req, res) => {
 const getApllicant=expressAsyncHandler(async(req,res)=>{
   const {id}=req.params
   const applicant=await Applications.findById(id)
+  .populate("reviewedBy", "firstName", "secondName", "role")
   if(!applicant){
     res.status(404)
     throw new Error("Applicant not found")
+  }
+  // function for changing the status of the applicant to reviewer 
+   if (applicant.status === "Pending" && req.user.role==="reviewer") {
+    applicant.status = "Under-Review";
+    applicant.reviewedBy = req.user._id;
+    applicant.reviewedAt = new Date();
+    applicant.reviewStartedAt = new Date();
+    await applicant.save();
   }
   res.status(200).json(
     applicant
@@ -320,9 +329,9 @@ const getApllicant=expressAsyncHandler(async(req,res)=>{
 //..access----------------------------------------------private
 const updateApplicantsStatus=expressAsyncHandler(async(req,res)=>{
   const{id}=req.params
-  const {status}=req.body
+  const {status,remarks}=req.body
 
-  const allowedStatus=["Pending","Accepted","Rejected"]
+  const allowedStatus=["Pending","Approved","Rejected","Under-Review"]
   if(!allowedStatus.includes(status)){
     res.status(400)
     throw new Error("Invalid status value")
@@ -332,9 +341,18 @@ const updateApplicantsStatus=expressAsyncHandler(async(req,res)=>{
     res.status(404)
     throw new Error("Applicant Unavailable");
   }
-  applicant.status=status
+  applicant.status=status||applicant.status
+  applicants.remarks=remarks||applicant.remarks
+
+  applicant.reviewedBy=req.user._id
+  applicant.reviewStartedAt=null
+
+  if(req.body.allocatedAmount &&applicant.status==="Approved"){
+    applicant.allocatedAmount=req.body.allocatedAmount
+  }
 
   await applicant.save()
+  await updated.populate("reviewedBy", "firstName secondName role");
   res.status(200).json(applicant)
 })
 

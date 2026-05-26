@@ -12,7 +12,22 @@ const imageBase=usersApi.injectEndpoints({
                 body:data
             }),
             invalidatesTags:["Images"]
+        }),
+        uploads:builder.mutation({
+            query:(data)=>({
+                url:`${IMAGE_URL}/multiple`,
+                method:"POST",
+                body:data
+            }),
+            invalidatesTags:["Images"]
+        }),
+        deleteImage:builder.mutation({
+            query:(key)=>({
+                url:`${IMAGE_URL}?key=${key}`,
+                method:"DELETE",
+            }),
+            invalidatesTags:["Images"]
         })
     })
 })
-export const{useUploadMutation}=imageBase
+export const{useUploadMutation,useUploadsMutation,useDeleteImageMutation}=imageBase

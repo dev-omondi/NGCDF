@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback ,useMemo} from "react";
 import {
   LayoutDashboard, FileText, Users, Clock, CheckCircle, XCircle,
   Wallet, BarChart2, Bell, Settings, LogOut, Search, ChevronDown,
@@ -12,89 +12,11 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { useApplicantsQuery } from "@/applicationRedux/baseAppslice";
-// ─── API Service Layer ────────────────────────────────────────────────────────
-// Set BASE_URL to your actual backend (e.g. https://api.muhoroni-bursary.go.ke)
-// Uncomment the real fetch block and remove the mock block when backend is ready.
-const BASE_URL = "/api/admin";
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+import { useSelector } from "react-redux";
 
-const apiService = {
-  async get(endpoint) {
-    // ── REAL FETCH (uncomment when backend is live) ──────────────────────────
-    // const token = localStorage.getItem("token");
-    // const res = await fetch(endpoint, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    // });
-    // if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`);
-    // return res.json();
-    // ────────────────────────────────────────────────────────────────────────
+const ENABLE_NOTIFICATIONS = false;
 
-    // ── MOCK DATA (remove when backend is live) ──────────────────────────────
-    await delay(700 + Math.random() * 500);
-
-    // Muhoroni Constituency has 6 wards:
-    // Muhoroni/Koru, Miwani, Omugel/East Kano, Chemelil/Chemase, Fort Ternan, Songhor/Soba
-    const mockData = {
-      // GET /api/admin/profile
-      [`${BASE_URL}/profile`]: {
-        name: "Hon. Peter Odhiambo",
-        role: "Bursary Fund Administrator",
-        email: "p.odhiambo@muhoroni.go.ke",
-        county: "Kisumu County",
-        constituency: "Muhoroni Constituency",
-      },
-
-      // GET /api/admin/notifications
-      [`${BASE_URL}/notifications`]: {
-        unread: 5,
-        items: [
-          { id: 1, type: "new",      message: "New application from Grace Achieng – Miwani Ward",              time: "3m ago",  read: false },
-          { id: 2, type: "approved", message: "Application #MHR-2024-0341 approved – Fort Ternan Ward",        time: "20m ago", read: false },
-          { id: 3, type: "alert",    message: "Flagged: Incomplete transcripts for Kevin Otieno – Chemelil",   time: "2h ago",  read: false },
-          { id: 4, type: "system",   message: "Q3 disbursement report is ready for download",                  time: "5h ago",  read: true  },
-          { id: 5, type: "new",      message: "Batch upload: 23 new applications from Songhor/Soba Ward",      time: "1d ago",  read: true  },
-        ],
-      },
-
-      // GET /api/admin/dashboard/stats
-      [`${BASE_URL}/dashboard/stats`]: {
-        totalApplications:    { value: 1_284, trend: +9.2  },
-        pendingReviews:       { value: 218,   trend: -4.5  },
-        approvedApplications: { value: 847,   trend: +11.3 },
-        rejectedApplications: { value: 219,   trend: +2.1  },
-        fundsDisbursed:       { value: 12_680_000, trend: +14.7 },
-      },
-
-      // GET /api/admin/analytics
-      // shape: { wards: [{name,applicants,approved,rejected,underReview}], statusBreakdown: [...] }
-      [`${BASE_URL}/analytics`]: {
-        wards: [
-          { name: "Muhoroni/Koru",      applicants: 287, approved: 198, rejected: 54, underReview: 35 },
-          { name: "Miwani",             applicants: 213, approved: 141, rejected: 42, underReview: 30 },
-          { name: "Omugel/East Kano",   applicants: 176, approved: 112, rejected: 38, underReview: 26 },
-          { name: "Chemelil/Chemase",   applicants: 248, approved: 167, rejected: 49, underReview: 32 },
-          { name: "Fort Ternan",        applicants: 194, approved: 134, rejected: 35, underReview: 25 },
-          { name: "Songhor/Soba",       applicants: 166, approved: 95,  rejected: 31, underReview: 40 },
-        ],
-        statusBreakdown: [
-          { name: "Approved",     value: 847, color: "#1d4ed8" },
-          { name: "Pending",      value: 218, color: "#f59e0b" },
-          { name: "Rejected",     value: 219, color: "#ef4444" },
-          { name: "Under Review", value: 188, color: "#8b5cf6" },
-        ],
-      },
-    };
-
-    const result = mockData[endpoint];
-    if (!result) throw new Error(`Endpoint not found: ${endpoint}`);
-    return result;
-  },
-};
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+//Helpers 
 const formatCurrency = (v) =>
   v >= 1_000_000 ? `KES ${(v / 1_000_000).toFixed(2)}M` : `KES ${v?.toLocaleString()}`;
 
@@ -196,7 +118,7 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
         <MapPin size={11} className="text-blue-300 shrink-0" />
         <div className="min-w-0">
           <p className="text-blue-200 text-[10px] font-semibold leading-tight truncate">Muhoroni Constituency</p>
-          <p className="text-blue-400 text-[9px] leading-tight">Kisumu County · 6 Wards</p>
+          <p className="text-blue-400 text-[9px] leading-tight">Kisumu County · 5 Wards</p>
         </div>
       </div>
 
@@ -238,7 +160,7 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
             <span className="text-emerald-400 text-xs font-semibold">System Online</span>
           </div>
-          <p className="text-blue-400 text-[10px]">v2.4.1 · Muhoroni Bursary Fund</p>
+          <p className="text-blue-400 text-[10px]">v2.4.1 · Muhoroni NGCDF Fund</p>
         </div>
       </div>
     </aside>
@@ -248,7 +170,6 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 const Navbar = ({ onMenuClick, profile, notifications, profileLoading, notifLoading }) => {
   const [notifOpen,   setNotifOpen]   = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const [search,      setSearch]      = useState("");
 
   return (
@@ -264,8 +185,10 @@ const Navbar = ({ onMenuClick, profile, notifications, profileLoading, notifLoad
           <span className="font-bold text-blue-900 text-sm">Muhoroni Bursary</span>
         </div>
 
-        {/* Search → GET /api/admin/search?q={search} */}
-        <div className="hidden sm:flex flex-1 max-w-md items-center gap-2 bg-slate-50 border border-blue-100 rounded-xl px-4 py-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+      
+        <div className="hidden sm:flex flex-1 max-w-md items-center gap-2 bg-slate-50 border
+         border-blue-100 rounded-xl px-4 py-2 focus-within:border-blue-400 focus-within:ring-2
+          focus-within:ring-blue-100 transition-all">
           <Search size={15} className="text-slate-400 shrink-0" />
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search applicants, wards, ref IDs…"
@@ -319,58 +242,13 @@ const Navbar = ({ onMenuClick, profile, notifications, profileLoading, notifLoad
               </div>
             )}
           </div>
-
-          {/* Profile → GET /api/admin/profile */}
-          <div className="relative">
-            <button onClick={() => { setProfileOpen(v => !v); setNotifOpen(false); }}
-              className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl hover:bg-blue-50 transition-colors">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-800 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                {profileLoading ? "?" : profile?.name?.split(" ").map(n => n[0]).join("").slice(0, 2)}
-              </div>
-              <div className="hidden md:block text-left">
-                <p className="text-xs font-bold text-slate-800 leading-tight">
-                  {profileLoading ? "Loading…" : profile?.name?.split(" ").slice(0, 2).join(" ")}
-                </p>
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  {profileLoading ? "" : profile?.role?.split(" ").slice(0, 2).join(" ")}
-                </p>
-              </div>
-              <ChevronDown size={13} className="text-slate-400 hidden md:block" />
-            </button>
-
-            {profileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-blue-100 rounded-2xl shadow-xl overflow-hidden z-50">
-                <div className="px-4 py-3 border-b border-slate-100">
-                  <p className="font-bold text-slate-800 text-sm">{profile?.name}</p>
-                  <p className="text-xs text-slate-500 truncate">{profile?.email}</p>
-                  <p className="text-[10px] text-blue-500 font-semibold mt-0.5">{profile?.constituency}</p>
-                </div>
-                {[
-                  { icon: Shield,   label: "My Profile"         },
-                  { icon: Settings, label: "Settings"            },
-                  { icon: Globe,    label: "Kisumu County Portal" },
-                ].map(({ icon: Icon, label }) => (
-                  <button key={label}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                    <Icon size={14} /> {label}
-                  </button>
-                ))}
-                <div className="border-t border-slate-100">
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
-                    <LogOut size={14} /> Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </header>
   );
 };
 
-// ─── Ward Bar Chart ───────────────────────────────────────────────────────────
-// Fetched from GET /api/admin/analytics → data.wards
+// ─── Ward Bar Chart 
 // Each ward: { name, applicants, approved, rejected, underReview }
 const WardBarChart = ({ data, loading }) => {
   const [metric, setMetric] = useState("applicants");
@@ -382,6 +260,10 @@ const WardBarChart = ({ data, loading }) => {
     underReview: { color: "#8b5cf6", label: "Under Review"     },
   };
 
+  const currentYear=new Date().getFullYear()
+  const nextYear=currentYear+1
+  const financialYear=`Financial Year ${currentYear}/${nextYear}`
+
   if (loading) return <Skeleton className="h-96" />;
 
   return (
@@ -392,7 +274,7 @@ const WardBarChart = ({ data, loading }) => {
           <h3 className="font-bold text-slate-800 text-base">Applications by Ward</h3>
           <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
             <MapPin size={11} className="text-blue-500" />
-            Muhoroni Constituency · 6 Wards · Kisumu County · FY 2024/2025
+            Muhoroni Constituency · 5 Wards · Kisumu County ·{financialYear}
           </p>
         </div>
         {/* Metric toggle */}
@@ -522,7 +404,7 @@ const WardLeaderboard = ({ data, loading }) => {
   return (
     <div className="bg-white rounded-2xl border border-blue-100 p-5 shadow-sm">
       <h3 className="font-bold text-slate-800 text-base mb-0.5">Ward Rankings</h3>
-      <p className="text-xs text-slate-500 mb-5">All 6 wards · ranked by applicants</p>
+      <p className="text-xs text-slate-500 mb-5">All 5 wards · ranked by applicants</p>
 
       <div className="space-y-4">
         {sorted.map((w, i) => {
@@ -623,24 +505,76 @@ const QuickActions = () => {
 
 
 // @description .....................................this the main function that is rendered
-
-
 export default function BursaryDashboard() {
+  //data from rtk query and back_end
+  const userInfor=useSelector((state)=>state.auth.userInfor)
+  const {data:applicantsData,isLoading:applicantsLoading,isError:applicantsError}=useApplicantsQuery()
+  const applicants=applicantsData?.data||[]
+  console.log("applicants",applicants)
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav,   setActiveNav]   = useState("Dashboard");
 
-  {/**for navigating to pages */}
-  const navigate=useNavigate()
+  //live stats from the back_end
+    const stats = useMemo(() => {
+      const total = applicants.length;
 
-  const [profile,       setProfile]   = useState(null);
-  const [notifications, setNotifs]    = useState(null);
-  const [stats,         setStats]     = useState(null);
-  const [analytics,     setAnalytics] = useState(null);
+      const approved = applicants.filter(a => a.status === "approved").length;
+      const rejected = applicants.filter(a => a.status === "rejected").length;
+      const pending = applicants.filter(a =>
+        a.status === "pending" || a.status === "under_review"
+      ).length;
 
-  const [loading, setLoading] = useState({
-    profile: true, notifications: true, stats: true, analytics: true,
-  });
-  const [errors, setErrors] = useState({});
+      return {
+        totalApplications: { value: total, trend: 0 },
+        pendingReviews: { value: pending, trend: 0 },
+        approvedApplications: { value: approved, trend: 0 },
+        rejectedApplications: { value: rejected, trend: 0 },
+        fundsDisbursed: { value: approved * 15000, trend: 0 },
+      };
+    }, [applicants]);
+      //live data for the words
+     const analytics = useMemo(() => {
+        const wardMap = {};
+
+        applicants.forEach((app) => {
+          const ward = app.ward || "Unknown";
+
+          if (!wardMap[ward]) {
+            wardMap[ward] = {
+              name: ward,
+              applicants: 0,
+              approved: 0,
+              rejected: 0,
+              underReview: 0,
+            };
+          }
+
+          wardMap[ward].applicants++;
+
+          switch (app.status) {
+            case "approved":
+              wardMap[ward].approved++;
+              break;
+            case "rejected":
+              wardMap[ward].rejected++;
+              break;
+            default:
+              wardMap[ward].underReview++;
+          }
+        });
+
+        const wards = Object.values(wardMap);
+
+        return {
+          wards,
+          statusBreakdown: [
+            { name: "Approved", value: wards.reduce((a,b)=>a+b.approved,0), color:"#1d4ed8" },
+            { name: "Pending", value: wards.reduce((a,b)=>a+b.underReview,0), color:"#f59e0b" },
+            { name: "Rejected", value: wards.reduce((a,b)=>a+b.rejected,0), color:"#ef4444" },
+          ],
+        };
+      }, [applicants]);
 
   const fetchData = useCallback(async (key, endpoint, setter) => {
     setLoading(p => ({ ...p, [key]: true }));
@@ -654,22 +588,18 @@ export default function BursaryDashboard() {
       setLoading(p => ({ ...p, [key]: false }));
     }
   }, []);
+  //place holders
+  const loading = {
+  profile: false,
+  notifications: false,
+};
+const notifications = { unread: 0, items: [] };
+const statCards = [];
 
-  useEffect(() => {
-    fetchData("profile",       `${BASE_URL}/profile`,         setProfile);
-    fetchData("notifications", `${BASE_URL}/notifications`,   setNotifs);
-    fetchData("stats",         `${BASE_URL}/dashboard/stats`, setStats);
-    fetchData("analytics",     `${BASE_URL}/analytics`,       setAnalytics);
-  }, [fetchData]);
-
-  const statCards = [
-    { key: "totalApplications",    icon: FileText,    title: "Total Applications",    color: "blue",   formatter: null          },
-    { key: "pendingReviews",       icon: Clock,       title: "Pending Reviews",       color: "amber",  formatter: null          },
-    { key: "approvedApplications", icon: CheckCircle, title: "Approved Applications", color: "green",  formatter: null          },
-    { key: "rejectedApplications", icon: XCircle,     title: "Rejected Applications", color: "red",    formatter: null          },
-    { key: "fundsDisbursed",       icon: Banknote,    title: "Funds Disbursed",       color: "purple", formatter: formatCurrency },
-  ];
-
+const currentYear=new Date().getFullYear()
+const nextYear=currentYear+1
+const financialYear=`Finacial Yaer ${currentYear}/${nextYear}`
+  
   return (
     <div className="min-h-screen bg-[#f4f6fb] font-sans">
       <style>{`
@@ -687,8 +617,7 @@ export default function BursaryDashboard() {
       <div className="lg:pl-64 flex flex-col min-h-screen">
         <Navbar
           onMenuClick={() => setSidebarOpen(true)}
-          profile={profile}
-          notifications={notifications}
+          
           profileLoading={loading.profile}
           notifLoading={loading.notifications}
         />
@@ -704,17 +633,17 @@ export default function BursaryDashboard() {
 
             <div className="relative">
               <h1 className="text-xl font-extrabold text-white leading-tight">
-                Welcome back, {loading.profile ? "Admin" : profile?.name?.split(" ").slice(0, 2).join(" ")} 👋
+                Welcome back, {loading.profile ? "Admin" :userInfor.firstName} 👋
               </h1>
               <p className="text-blue-200 text-sm mt-1">
-                Manage bursary applications across all 6 wards of Muhoroni Constituency.
+                Manage bursary applications across all 5 wards of Muhoroni Constituency.
               </p>
             </div>
 
             <div className="relative flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 shrink-0">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               <div className="text-xs">
-                <span className="text-white font-semibold">Live · FY 2024/2025</span>
+                <span className="text-white font-semibold">Live · {financialYear}</span>
                 <span className="text-blue-300 mx-1.5">·</span>
                 <span className="text-blue-200">Muhoroni Constituency</span>
                 <span className="text-blue-300 mx-1.5">·</span>
@@ -746,7 +675,7 @@ export default function BursaryDashboard() {
 
           {/* Footer */}
           <div className="text-center pb-4 pt-2 text-xs text-slate-400 border-t border-slate-200/60">
-            © 2024 Muhoroni Constituency Bursary Fund · Kisumu County Government · Ministry of Education Kenya · v2.4.1
+            © 2024 Muhoroni Constituency Bursary Fund · Kisumu County Government .version 2.4.1
           </div>
         </main>
       </div>
