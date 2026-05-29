@@ -7,7 +7,7 @@ import dbConnect from "./config/connectDb.js"
 import cookieParser from "cookie-parser"
 import userRouter from "./routers/userRouter.js"
 import applicationRouter from "./routers/applicationRouter.js"
-import "./config/applicationJob.js"
+//import "./config/applicationJob.js"
 import cors from "cors";
 
 const app=express()

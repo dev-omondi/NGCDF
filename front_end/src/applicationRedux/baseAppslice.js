@@ -17,7 +17,7 @@ const applicationApi= usersApi.injectEndpoints({
             query:()=>`${APPLICATION_URL}`,
             providesTags:["Applicants"]
         }),
-        updateRole:builder.mutation({
+        updateStatus:builder.mutation({
             query:({data,id})=>({
                 url:`${APPLICATION_URL}/${id}`,
                 method:"PUT",
@@ -28,8 +28,16 @@ const applicationApi= usersApi.injectEndpoints({
         applicant:builder.query({
             query:(id)=>`${APPLICATION_URL}/${id}`,
             providesTags:["Applications"]
+        }),
+        updateAmount:builder.mutation({
+            query:({id,ApprovedAmount})=>({
+                url:`${APPLICATION_URL}/allocation/${id}`,
+                method:"PUT",
+                body:{ApprovedAmount}
+            }),
+            invalidatesTags:["Applications"]
         })
     })
 })
 export const{useApplyMutation,useApplicantsQuery
-    ,useUpdateRoleMutation,useApplicantQuery}=applicationApi
+    ,useUpdateStatusMutation,useApplicantQuery,useUpdateAmountMutation}=applicationApi

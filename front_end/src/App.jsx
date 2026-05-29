@@ -13,8 +13,10 @@ import Userpage from './dashboard/Userpage'
 import ApplicantReviewPage from './dashboard/Applicantpage'
 import Userspage from './dashboard/Userspage'
 import Profilepage from './pages/Profilepage'
+import Fundsallocation from './dashboard/Fundsallocation'
 import { useNavigate,useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { Toaster } from "react-hot-toast";
 const App = () => {
 
   const navigate=useNavigate()
@@ -34,6 +36,7 @@ const App = () => {
 
   return (
     <div>
+      <Toaster position="top-right" />
       <Routes>
         <Route path='/' element={<Layout/>}>
           <Route index element={<Homepage/>}/>
@@ -42,6 +45,7 @@ const App = () => {
           <Route path='/bursary/application' element={<ApplicationForm/>}/>
           <Route path='/applicants/dashboard' element={<ApplicantsPage/>}/>
           <Route path='applicant/:id' element={<ApplicantReviewPage/>}/>
+          <Route path='/allocation' element={<Fundsallocation/>}/>
           <Route element={<Protectpage/>}>
             <Route path='/admin/dashboard' element={<BursaryDashboard/>}/>
             <Route path='/users' element={<Userspage/>}/>

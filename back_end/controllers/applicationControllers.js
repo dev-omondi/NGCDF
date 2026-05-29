@@ -202,9 +202,7 @@ import expressAsyncHandler from "express-async-handler";
       },
 
       siblings: siblings || [],
-
       parenthoodStatus,
-
       documents: documents || [],
     });
 
@@ -307,7 +305,7 @@ const getApplicants = expressAsyncHandler(async (req, res) => {
 const getApllicant=expressAsyncHandler(async(req,res)=>{
   const {id}=req.params
   const applicant=await Applications.findById(id)
-  .populate("reviewedBy", "firstName", "secondName", "role")
+  .populate("reviewedBy", "firstName secondName role")
   if(!applicant){
     res.status(404)
     throw new Error("Applicant not found")
@@ -342,18 +340,41 @@ const updateApplicantsStatus=expressAsyncHandler(async(req,res)=>{
     throw new Error("Applicant Unavailable");
   }
   applicant.status=status||applicant.status
-  applicants.remarks=remarks||applicant.remarks
+  applicant.remarks=remarks||applicant.remarks
 
   applicant.reviewedBy=req.user._id
   applicant.reviewStartedAt=null
 
-  if(req.body.allocatedAmount &&applicant.status==="Approved"){
-    applicant.allocatedAmount=req.body.allocatedAmount
-  }
-
   await applicant.save()
-  await updated.populate("reviewedBy", "firstName secondName role");
+  await applicant.populate("reviewedBy", "firstName secondName role");
   res.status(200).json(applicant)
 })
 
-export {createApplication,getApplicants,getApllicant,updateApplicantsStatus}
+//..@description----------------------------------------------update the applicant allocated amount
+//..api ----------------------------------------------PUT/api/applicant/:id
+//..@access---------------------------------------------------private
+const updateAllocatedAmount=expressAsyncHandler(async(req,res)=>{
+   console.log("Controller is reached")
+   console.log(req.body)
+  const{ ApprovedAmount}=req.body
+  const {id}=req.params
+  console.log(ApprovedAmount)
+  console.log(id)
+  const applicant=await Applications.findById(id)
+  if(!applicant){
+    res.status(404)
+    throw new Error("Allplication un availlable")
+  }
+  if(req.user.role!=="finance" || applicant.status!=="Approved"){
+    res.status(403)
+    throw new Error("Forbidden,You canot allocate amount")
+  }
+  applicant.ApprovedAmount=ApprovedAmount
+  const updatedApplicant=await applicant.save()
+  res.status(200)
+  .json(updatedApplicant)
+
+})
+
+export {createApplication,getApplicants,getApllicant,
+      updateApplicantsStatus,updateAllocatedAmount}

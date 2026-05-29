@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
-  useApplicantsQuery,
-  useUpdateRoleMutation,
+  useApplicantQuery,
+  useUpdateStatusMutation,
 } from "@/applicationRedux/baseAppslice";
 
 import {
@@ -11,35 +11,74 @@ import {
   X,
   Eye,
 } from "lucide-react";
+import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+
+ const Skeleton = ({ className }) => {
+  return (
+    <div className={`animate-pulse bg-slate-200 rounded ${className}`} />
+      );
+    };
+
 
 const ApplicantReviewPage = () => {
+  const {id}=useParams()
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [remarks, setRemarks] = useState("");
 
-  const { data, isLoading, isError } = useApplicantsQuery({
-    status: "pending",
-    page: 1,
-    limit: 1,
-  });
+  const { data, isLoading, isError } = useApplicantQuery(id);
  
   const [updateApplicant, { isLoading: updating }] =
-    useUpdateRoleMutation();
+    useUpdateStatusMutation();
 
-    if (isLoading) return <p> Loading..................</p>
- if(isError)  return <p>Error Laoding Applicant</p>
+if (isLoading) {
+  return (
+    <div className="min-h-screen bg-slate-100 p-6 space-y-4">
+      
+      {/* Header skeleton */}
+      <div className="bg-white p-5 rounded-xl border flex justify-between items-center">
+        <div>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <Skeleton className="h-8 w-24 rounded-full" />
+      </div>
 
-  const applicant = data?.data?.[0];
- console.log(applicant)
+      {/* Card skeletons */}
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="bg-white p-6 rounded-xl border space-y-3">
+          <Skeleton className="h-5 w-40" />
+          <div className="grid md:grid-cols-2 gap-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+  const applicant = data;
+
   const handleUpdate = async (newStatus) => {
     if (!applicant) return;
-
-    await updateApplicant({
-      id: applicant._id,
+    if(!remarks||remarks.trim()===""){
+      toast.error("Please add remarks before updating status")
+      return
+    }
+    try {
+      await updateApplicant({
+      id,
       data: {
         status: newStatus,
         remarks,
       },
     }).unwrap();
+    toast.success("User remarks or status updated successfully")
+    } catch (err) {
+      toast.error(err?.data?.message)
+    }
   };
 
   const documents = applicant?.documents || [];
@@ -68,13 +107,6 @@ const ApplicantReviewPage = () => {
 
       {/* CONTENT */}
       <div className="max-w-6xl mx-auto p-5 space-y-6">
-
-        {isLoading && (
-          <div className="bg-white p-6 border rounded-xl">
-            Loading applicant...
-          </div>
-        )}
-
         {isError && (
           <div className="bg-red-50 text-red-600 p-6 border rounded-xl">
             Failed to load applicant
@@ -145,7 +177,7 @@ const ApplicantReviewPage = () => {
             </div>
 
 
-            {/* ================= DISABILITY ================= */}
+            {/* DISABILITY */}
             <div className="bg-white border rounded-xl p-6">
               <h2 className="font-bold mb-3">Disability</h2>
 
@@ -193,6 +225,10 @@ const ApplicantReviewPage = () => {
                     <p><b>Institution:</b> {s.institution}</p>
                     <p><b>Level:</b> {s.level}</p>
                     <p><b>Year:</b> {s.yearOfStudy}</p>
+                      <p>
+                  <b>Is Sibling Sponsered:</b>{" "}
+                    {s?.hasBeneficiarySibling? "Yes" : "No"}
+                  </p>
                   </div>
                 ))
               )}
@@ -231,8 +267,11 @@ const ApplicantReviewPage = () => {
 
             {/* ================= EVALUATION ================= */}
             <div className="bg-white border rounded-xl p-6">
-              <h2 className="font-bold mb-3">Evaluation</h2>
-
+              <div className="flex flex-col items-center">
+                <h2 className="font-bold mb-3 ">Evaluation</h2>
+                <p className="text-blue-500 font-semibold">Kindy Add remarks before updating the applicant status <span className="text-red-500">(Approving or Rejecting)
+                  </span> for clarity</p>
+              </div>
               <textarea
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
@@ -242,22 +281,30 @@ const ApplicantReviewPage = () => {
               />
 
               <div className="flex justify-center gap-3 mt-4">
-                <button
+                              <button
                   disabled={updating}
-                  onClick={() => handleUpdate("approved")}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  onClick={() => handleUpdate("Approved")}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 text-white ${
+                    updating
+                      ? "bg-green-400 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
                 >
                   <CheckCircle size={16} />
-                  Approve
+                  {updating ? "Approving..." : "Approve"}
                 </button>
-
                 <button
                   disabled={updating}
-                  onClick={() => handleUpdate("rejected")}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  onClick={() => handleUpdate("Rejected")}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 text-white ${
+                    updating
+                      ? "bg-red-400 cursor-not-allowed"
+                      : "bg-red-600 hover:bg-red-700"
+                  }`}
                 >
                   <XCircle size={16} />
-                  Reject
+
+                  {updating ? "Rejecting..." : "Reject"}
                 </button>
               </div>
             </div>

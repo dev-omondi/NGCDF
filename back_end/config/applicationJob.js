@@ -23,7 +23,6 @@ cron.schedule("* * * * *", async () => {
       }
     );
 
-    console.log(`Auto-reset applications: ${result.modifiedCount}`);
   } catch (err) {
     console.log("Cron error:", err.message);
   }

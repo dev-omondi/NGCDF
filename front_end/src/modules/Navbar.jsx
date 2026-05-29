@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import ngcdf_logo from "@/assets/ngcdf_logo.png"
+import ngcdf_logo from "@/assets/ngcdf.png"
 import { Link, useNavigate } from "react-router-dom"
 import { useLogoutMutation } from "@/authRedux/baseApiSlice.js"
 import { clearCredentials } from "@/authRedux/authSlice"
@@ -58,7 +58,7 @@ const Navbar = () => {
             <img
               src={ngcdf_logo}
               alt="ngcdf_logo"
-              className="h-16 md:h-20 w-auto"
+              className="h-30 md:h-36 w-auto"
             />
           </div>
 
@@ -68,6 +68,7 @@ const Navbar = () => {
             {/* LINKS */}
             <section className="flex items-center gap-5 text-sm font-semibold text-blue-500">
               <Link
+              to={"/allocation"}
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
               >
                 Home

@@ -471,12 +471,20 @@ const removeSibling = (index) => {
           {/* STEP 2 */}
           {step === 1 && (
             <div className="grid md:grid-cols-2 gap-4">
-              <input name="ward"
-               placeholder="Ward"
-               onChange={handleChange} 
-               value={form.ward}
-              className="input" />
-
+              <select
+                  name="ward"
+                  value={form.ward}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="">Select Ward</option>
+                  <option value="Muhoroni-Koru">MUHORONI/KORU</option>
+                  <option value="Chemelil-Tamu">CHEMELIL/TAMU</option>
+                  <option value="Ombeyi">OMBEYI</option>
+                  <option value="Masogo-Nyangoma">MASOGO/NYANGOMA</option>
+                  <option value="Miwani">MIWANI</option>
+                </select>
+                
               <input name="location" 
               placeholder="Location"
               value={form.location}

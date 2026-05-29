@@ -10,11 +10,13 @@ import {
   Clock,
   Wallet,
   Eye,
+  Filter
 } from "lucide-react";
 
 const ApplicantsPage = () => {
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
+  const [type,setType]=useState("all")
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
@@ -28,17 +30,33 @@ const ApplicantsPage = () => {
 
   const applicants = data?.data || [];
 
-  // SEARCH FILTER
-  const filtered = applicants?.filter((app) => {
-    const q = search.toLowerCase();
+ const filtered = applicants?.filter((app) => {
+  const q = search.toLowerCase();
 
-    return (
-      app.fullName?.toLowerCase().includes(q) ||
-      app.idNo?.toLowerCase().includes(q) ||
-      app.institutionName?.toLowerCase().includes(q) ||
-      app.ward?.toLowerCase().includes(q)
-    );
-  });
+  // SEARCH FILTER
+  const matchesSearch =
+    app.fullName?.toLowerCase().includes(q) ||
+    app.idNo?.toLowerCase().includes(q) ||
+    app.institutionName?.toLowerCase().includes(q)
+
+  // STATUS FILTER
+  const matchesStatus =
+    status === "all"
+      ? true
+      : app.status?.toLowerCase() === status;
+
+  // TYPE FILTER
+  const matchesType =
+    type === "all"
+      ? true
+      : app.burSaryType?.toLowerCase() === type;
+
+  return (
+    matchesSearch &&
+    matchesStatus &&
+    matchesType
+  );
+});
 
   // TOP NAVIGATION
   const navLinks = [
@@ -118,7 +136,7 @@ const ApplicantsPage = () => {
                     key={link.label}
                     onClick={() => {
                       if (link.label === "Funds Allocation") {
-                        navigate("/admin/funds");
+                        //navigate("/admin/funds");
                       }
                     }}
                     className="
@@ -168,26 +186,74 @@ const ApplicantsPage = () => {
                   </button>
                 );
               })}
-            </div>
-          </div>
+
+                    {/* TYPE FILTERS */}
+      <div className="flex items-center gap-2 ml-2">
+        <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+          <Filter size={16} />
+          Type
         </div>
+
+        <button
+          onClick={() => setType("all")}
+          className={`
+            px-4 py-2 rounded-xl border text-sm font-medium transition
+            ${
+              type === "all"
+                ? "bg-purple-600 text-white border-purple-600"
+                : "bg-white text-slate-700 hover:bg-slate-100"
+            }
+          `}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setType("bursary")}
+          className={`
+            px-4 py-2 rounded-xl border text-sm font-medium transition
+            ${
+              type === "bursary"
+                ? "bg-purple-600 text-white border-purple-600"
+                : "bg-white text-slate-700 hover:bg-slate-100"
+            }
+          `}
+        >
+          Bursary
+        </button>
+        <button
+          onClick={() => setType("scholarship")}
+          className={`
+            px-4 py-2 rounded-xl border text-sm font-medium transition
+            ${
+              type === "scholarship"
+                ? "bg-purple-600 text-white border-purple-600"
+                : "bg-white text-slate-700 hover:bg-slate-100"
+            }
+          `}
+        >
+          Scholarship
+        </button>
       </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-      {/* PAGE CONTENT */}
-      <div className="max-w-7xl mx-auto p-4 lg:p-6">
-        {/* LOADING */}
-        {isLoading && (
-          <div className="bg-white rounded-2xl border p-6 text-slate-500 shadow-sm">
-            Loading applicants...
-          </div>
-        )}
+            {/* PAGE CONTENT */}
+            <div className="max-w-7xl mx-auto p-4 lg:p-6">
+              {/* LOADING */}
+              {isLoading && (
+                <div className="bg-white rounded-2xl border p-6 text-slate-500 shadow-sm">
+                  Loading applicants...
+                </div>
+              )}
 
-        {/* ERROR */}
-        {isError && (
-          <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-6">
-            Failed to load applicants
-          </div>
-        )}
+              {/* ERROR */}
+              {isError && (
+                <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-6">
+                  Failed to load applicants
+                </div>
+              )}
 
         {/* TABLE */}
         {!isLoading && !isError && (
@@ -219,10 +285,6 @@ const ApplicantsPage = () => {
 
                     <th className="px-6 py-4 text-left font-semibold">
                       Applicant
-                    </th>
-
-                    <th className="px-6 py-4 text-left font-semibold">
-                      ID Number
                     </th>
 
                     <th className="px-6 py-4 text-left font-semibold">
@@ -279,11 +341,6 @@ const ApplicantsPage = () => {
                         <div className="font-semibold text-slate-800">
                           {app.fullName}
                         </div>
-                      </td>
-
-                      {/* ID */}
-                      <td className="px-6 py-5 text-slate-600">
-                        {app.idNo}
                       </td>
 
                       {/* INSTITUTION */}
