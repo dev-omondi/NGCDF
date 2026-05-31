@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback ,useMemo} from "react";
 import {
   LayoutDashboard, FileText, Users, Clock, CheckCircle, XCircle,
-  Wallet, BarChart2, Bell, Settings, LogOut, Search, ChevronDown,
-  Menu, X, TrendingUp, TrendingDown, Download, Send, UserPlus, Eye,
+  Wallet, BarChart2, Bell, CalendarPlus, LogOut, Search, ChevronDown,
+  Menu, X, TrendingUp, TrendingDown, Download, Send, UserPlus, File,
   ChevronRight, Shield, Globe, GraduationCap, Banknote,
   CheckCircle2, AlertTriangle, Info, MapPin, RefreshCw
 } from "lucide-react";
@@ -74,7 +74,6 @@ const StatCard = ({ icon: Icon, title, value, trend, color = "blue", loading, fo
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard"                         },
-  { icon: FileText,        label: "Applicants",  badge: 1284        },
   { icon: Users,label: "Users",path:"/users"},
   { icon: Clock,           label: "Pending Reviews", badge: 218       },
   { icon: CheckCircle,     label: "Approved"                          },
@@ -82,7 +81,8 @@ const navItems = [
   { icon: Wallet,          label: "Allocations"                     },
   { icon: BarChart2,       label: "Reports"                           },
   { icon: Bell,            label: "Notifications", badge: 5           },
-  { icon: Settings,        label: "Settings"                          },
+  { icon: CalendarPlus, label: "Create Cycle", path:"/cycle/create" },
+  {icon:File, label:"Cycle List", path:"/cycles"}
 ];
 
 const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
@@ -147,7 +147,8 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
           );
         })}
         <div className="pt-4 mt-3 border-t border-blue-800/60">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-blue-300 hover:bg-red-500/15 hover:text-red-300 transition-all">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+           text-blue-300 hover:bg-red-500/15 hover:text-red-300 transition-all">
             <LogOut size={16} /> Logout
           </button>
         </div>

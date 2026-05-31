@@ -9,7 +9,7 @@ const usersApi=createApi({
     reducerPath:"usersApi",
     baseQuery,
     endpoints:(builder)=>({}),
-    tagTypes:["Users","Applications","Images"]
+    tagTypes:["Users","Applications","Images","Cycles"]
 })
 
 export default usersApi

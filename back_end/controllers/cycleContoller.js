@@ -10,11 +10,11 @@ const createCycle=expressAsyncHandler(async(req ,res)=>{
         res.status(409)
         throw new Error("An onpen cycle already exist")
     }
-     if (new Date(openingDate) >= new Date(closingDate)) {
+     const {financialYear,openningDate,closingDate}=req.body
+     if (new Date(openningDate) >= new Date(closingDate)) {
     res.status(400);
     throw new Error("Closing date must be after opening date");
-  }
-    const {financialYear,openningDate,closingDate}=req.body
+  } 
     if(!financialYear||!openningDate||!closingDate){
         res.status(400)
         throw new Error("All the fields are mandatory")
@@ -29,7 +29,7 @@ const createCycle=expressAsyncHandler(async(req ,res)=>{
 //..@api----------------------------------------------POST/api/cycle/:id
 //..@access---------------------------------------------private
 const updateCycle = expressAsyncHandler(async (req, res) => {
-    const cycle = await Applicationcycle.findById(req.params._id);
+    const cycle = await Applicationcycle.findById(req.params.id);
     if (!cycle) {
         res.status(404);
         throw new Error("The cycle does not exist");
@@ -94,9 +94,35 @@ const getOpenCycle = expressAsyncHandler(async (req, res) => {
   res.status(200).json(cycle);
 });
 
+//..@description----------------------------------------------------delete a cycle
+//..@api-------------------------------------------------------------DELETE/api/cycle/:id
+//..@access-------------------------------------------------------------private
+const deleteCycle = expressAsyncHandler(async (req, res) => {
+
+  const { id } = req.params;
+
+  const cycle = await Applicationcycle.findById(id);
+  if (!cycle) {
+    res.status(404);
+    throw new Error("Cycle not found");
+  }
+
+  if (cycle.status === "open") {
+    res.status(400);
+    throw new Error("Cannot delete an active (open) cycle");
+  }
+  await Applicationcycle.findByIdAndDelete(id);
+  res.status(200).json({
+    success: true,
+    message: "Cycle deleted successfully",
+    deletedCycleId: id,
+  });
+});
+
 export {createCycle,
     getCycles,
     getCycle,
     getOpenCycle,
-    updateCycle
+    updateCycle,
+    deleteCycle
 }

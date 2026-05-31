@@ -3,11 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   images: [], // selected files before upload
-
   previewUrls: [], // for UI preview
-
   uploading: false,
-
   progress: 0,
 };
 

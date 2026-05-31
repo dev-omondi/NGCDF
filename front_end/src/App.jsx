@@ -17,6 +17,9 @@ import Fundsallocation from './dashboard/Fundsallocation'
 import { useNavigate,useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Toaster } from "react-hot-toast";
+import Createcycle from './dashboard/Createcycle'
+import Cyclespage from './dashboard/Cyclespage'
+import Cyclepage from './dashboard/Cyclepage'
 const App = () => {
 
   const navigate=useNavigate()
@@ -48,7 +51,10 @@ const App = () => {
           <Route path='/allocation' element={<Fundsallocation/>}/>
           <Route element={<Protectpage/>}>
             <Route path='/admin/dashboard' element={<BursaryDashboard/>}/>
+            <Route path='/cycles' element={<Cyclespage/>}/>
+            <Route path='/cycle/:id' element={<Cyclepage/>}/>
             <Route path='/users' element={<Userspage/>}/>
+            <Route path='/cycle/create' element={<Createcycle/>} />
           </Route>
           <Route path='/user/:id' element={<Userpage/>}/>
           <Route path='/profile/:id' element={<Profilepage/>}/>
