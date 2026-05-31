@@ -465,44 +465,90 @@ const WardLeaderboard = ({ data, loading }) => {
   );
 };
 
-// ─── Quick Actions ────────────────────────────────────────────────────────────
-const QuickActions = () => {
-  const actions = [
-    { icon: Eye,       label: "Review Applications", desc: "Process pending queue",   color: "blue"   },
-    { icon: Download,  label: "Export Reports",       desc: "Download CSV or PDF",     color: "green"  },
-    { icon: Send,      label: "Send Notifications",   desc: "Alert applicants",         color: "purple" },
-    { icon: UserPlus,  label: "Add Administrator",    desc: "Manage system access",     color: "amber"  },
-    { icon: RefreshCw, label: "Sync Data",            desc: "Pull latest backend data", color: "teal"   },
-    { icon: BarChart2, label: "Full Analytics",       desc: "Detailed ward reports",    color: "indigo" },
+// @description amount quick stats
+const AllocationStats = ({ applicants }) => {
+  const stats = useMemo(() => {
+    const wardTotals = {};
+    let totalAllocated = 0;
+
+    applicants.forEach((app) => {
+      const ward = app.ward || "Unknown Ward";
+      const amount = Number(app.ApprovedAmount) || 0;
+
+      totalAllocated += amount;
+
+      wardTotals[ward] = (wardTotals[ward] || 0) + amount;
+    });
+
+    return {
+      totalAllocated,
+      wardTotals,
+    };
+  }, [applicants]);
+
+  const wardStats = Object.entries(stats.wardTotals);
+
+  const colors = [
+    "from-blue-600 to-blue-800",
+    "from-emerald-600 to-emerald-800",
+    "from-purple-600 to-purple-800",
+    "from-amber-500 to-orange-600",
+    "from-rose-500 to-red-700",
   ];
-  const btnColor = {
-    blue:   "bg-blue-600   hover:bg-blue-700   shadow-blue-200",
-    green:  "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200",
-    purple: "bg-purple-600 hover:bg-purple-700 shadow-purple-200",
-    amber:  "bg-amber-500  hover:bg-amber-600  shadow-amber-200",
-    teal:   "bg-teal-600   hover:bg-teal-700   shadow-teal-200",
-    indigo: "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200",
-  };
+
   return (
-    <div className="bg-white rounded-2xl border border-blue-100 p-5 shadow-sm">
-      <h3 className="font-bold text-slate-800 text-base mb-0.5">Quick Actions</h3>
-      <p className="text-xs text-slate-500 mb-4">Frequently used administrative operations</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {actions.map(({ icon: Icon, label, desc, color }) => (
-          <button key={label}
-            className={`flex flex-col items-start gap-2.5 p-4 rounded-xl text-white shadow-lg ${btnColor[color]} transition-all hover:scale-[1.03] hover:shadow-xl active:scale-100 duration-150`}>
-            <Icon size={18} />
-            <div>
-              <p className="text-xs font-bold leading-tight">{label}</p>
-              <p className="text-[10px] opacity-70 leading-tight mt-0.5">{desc}</p>
-            </div>
-          </button>
+    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div className="mb-5">
+        <h3 className="text-lg font-bold text-slate-800">
+          Allocation Statistics
+        </h3>
+        <p className="text-sm text-slate-500">
+          Funds distributed across wards
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
+
+        {/* TOTAL ALLOCATION */}
+        <div className="lg:col-span-2 bg-gradient-to-br from-blue-700 to-blue-900 text-white rounded-2xl p-5 shadow-lg">
+          <p className="text-blue-100 text-sm font-medium">
+            Total Allocated
+          </p>
+
+          <h2 className="text-3xl font-extrabold mt-2">
+            KES {stats.totalAllocated.toLocaleString()}
+          </h2>
+
+          <p className="text-blue-200 text-xs mt-2">
+            Total bursary funds allocated
+          </p>
+        </div>
+
+        {/* WARD ALLOCATIONS */}
+        {wardStats.map(([ward, amount], index) => (
+          <div
+            key={ward}
+            className={`bg-gradient-to-br ${
+              colors[index % colors.length]
+            } text-white rounded-2xl p-4 shadow-md hover:scale-[1.02] transition`}
+          >
+            <p className="text-xs opacity-80 truncate">
+              {ward}
+            </p>
+
+            <h3 className="text-xl font-bold mt-2">
+              KES {amount.toLocaleString()}
+            </h3>
+
+            <p className="text-[11px] opacity-70 mt-1">
+              Ward Allocation
+            </p>
+          </div>
         ))}
       </div>
     </div>
   );
 };
-
 
 // @description .....................................this the main function that is rendered
 export default function BursaryDashboard() {
@@ -519,10 +565,10 @@ export default function BursaryDashboard() {
     const stats = useMemo(() => {
       const total = applicants.length;
 
-      const approved = applicants.filter(a => a.status === "approved").length;
-      const rejected = applicants.filter(a => a.status === "rejected").length;
+      const approved = applicants.filter(a => a.status === "Approved").length;
+      const rejected = applicants.filter(a => a.status === "Rejected").length;
       const pending = applicants.filter(a =>
-        a.status === "pending" || a.status === "under_review"
+        a.status === "Pending" || a.status === "Under-Review"
       ).length;
 
       return {
@@ -553,10 +599,10 @@ export default function BursaryDashboard() {
           wardMap[ward].applicants++;
 
           switch (app.status) {
-            case "approved":
+            case "Approved":
               wardMap[ward].approved++;
               break;
-            case "rejected":
+            case "Rejected":
               wardMap[ward].rejected++;
               break;
             default:
@@ -670,8 +716,8 @@ const financialYear=`Finacial Yaer ${currentYear}/${nextYear}`
             <WardLeaderboard data={analytics?.wards}          loading={loading.analytics} />
           </div>
 
-          {/* Quick Actions */}
-          <QuickActions />
+          {/* Allocated amount stats */}
+            <AllocationStats applicants={applicants} />
 
           {/* Footer */}
           <div className="text-center pb-4 pt-2 text-xs text-slate-400 border-t border-slate-200/60">
