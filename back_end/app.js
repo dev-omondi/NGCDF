@@ -7,6 +7,7 @@ import dbConnect from "./config/connectDb.js"
 import cookieParser from "cookie-parser"
 import userRouter from "./routers/userRouter.js"
 import applicationRouter from "./routers/applicationRouter.js"
+import cycleRouter from "./routers/cycleRouter.js"
 //import "./config/applicationJob.js"
 import cors from "cors";
 
@@ -24,6 +25,7 @@ app.use(cookieParser())
 //routers
 app.use("/api/upload",r2Router)
 app.use("/api/users",userRouter)
+app.use("/api/cycle",cycleRouter)
 app.use("/api/application",applicationRouter)
 
 
