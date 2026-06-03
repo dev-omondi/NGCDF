@@ -22,6 +22,7 @@ const initialState = {
     // institution
     institutionName: "",
     levelOfStudy: "",
+    institutionBranch:"",
     class: "",
     yearOfStudy: "",
     admissionNo: "",
@@ -31,13 +32,16 @@ const initialState = {
     // family
     fatherName: "",
     fatherPhone: "",
+    fathersOccupation:"",
 
     motherName: "",
     motherPhone: "",
+    mothersOccupation:"",
 
     guardianName: "",
     guardianRelationship: "",
     guardianPhone: "",
+    guardiansOccupation:"",
 
     parenthoodStatus: "",
 

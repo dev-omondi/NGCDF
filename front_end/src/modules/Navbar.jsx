@@ -5,6 +5,7 @@ import { useLogoutMutation } from "@/authRedux/baseApiSlice.js"
 import { clearCredentials } from "@/authRedux/authSlice"
 import { useDispatch,useSelector } from "react-redux"
 
+
 import {
   Menu,
   X,
@@ -30,6 +31,7 @@ import {
 
 const Navbar = () => {
   const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState("");
 
   const dispatch=useDispatch()
   const navigate=useNavigate()
@@ -63,10 +65,13 @@ const Navbar = () => {
           </div>
 
           {/* DESKTOP NAVIGATION */}
+          <div className="flex flex-col gap-4 ">
+          
           <div className="hidden md:flex items-center gap-8">
-
+            
             {/* LINKS */}
             <section className="flex items-center gap-5 text-sm font-semibold text-blue-500">
+              
               <Link
               to={"/allocation"}
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
@@ -113,7 +118,7 @@ const Navbar = () => {
                 </Link>
               </section>
             ) : (
-             <div className="flex flex-row gap-2 hover:bg-blue-100 px-3 py-1 rounded">
+             <div className="flex flex-row gap-2 hover:bg-blue-100 px-3 py-4 rounded">
                  <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none">
@@ -167,26 +172,57 @@ const Navbar = () => {
              </div>
             )}
           </div>
+          </div>
 
           {/* MOBILE NAV */}
           <div className="flex md:hidden items-center justify-between flex-1 ml-4">
 
             {/* CENTER HAMBURGER */}
-            <div className="flex-1 flex justify-center">
-              {!open && (
-                <button
-                  onClick={() => setOpen(true)}
-                  className="text-blue-500"
-                >
-                  <Menu size={30} />
-                </button>
-              )}
-            </div>
+              <div className="md:hidden flex-1 ml-4">
+
+  {userInfor ? (
+    <div className="flex items-center justify-between">
+
+      {/* CENTER MENU */}
+      <div className="flex-1 flex justify-center">
+        {!open && (
+          <button
+            onClick={() => setOpen(true)}
+            className="text-blue-500"
+          >
+            <Menu size={30} />
+          </button>
+        )}
+      </div>
+
+      {/* PROFILE */}
+      <div className="flex justify-end">
+        <div className="flex flex-row gap-2 hover:bg-blue-100 px-3 py-1 rounded">
+          {/* avatar dropdown */}
+        </div>
+      </div>
+
+    </div>
+            ) : (
+              <div className="flex justify-end">
+
+                {!open && (
+                  <button
+                    onClick={() => setOpen(true)}
+                    className="text-blue-500"
+                  >
+                    <Menu size={50} />
+                  </button>
+                )}
+
+              </div>
+            )}
+
+          </div>
 
             {/* USER DROPDOWN */}
             <div className="flex justify-end">
-              {console.log("profile",userInfor)}
-              {userInfor? (
+              {userInfor && (
                 <div  className="flex flex-row gap-2 hover:bg-blue-100 px-3 py-1 rounded">
                   <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -240,14 +276,7 @@ const Navbar = () => {
                 </section>
                 </div>
                 
-              ) : (
-                <Link
-                  to={"/login"}
-                  className="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded transition-all duration-300 text-sm"
-                >
-                  Sign In
-                </Link>
-              )}
+              ) }
             </div>
           </div>
         </div>
@@ -274,14 +303,14 @@ const Navbar = () => {
 
           <button
             onClick={() => setOpen(false)}
-            className="text-blue-500"
+            className="text-red-500"
           >
-            <X size={30} />
+            <X size={40} />
           </button>
         </div>
 
         {/* MOBILE LINKS */}
-        <div className="flex-1 flex flex-col justify-center items-center gap-7 text-blue-600 font-semibold text-sm">
+        <div className="flex-1 flex flex-col justify-start pt-10 items-center gap-7 text-blue-600 font-semibold text-sm">
 
           <Link onClick={() => setOpen(false)}>
             Home

@@ -1,13 +1,19 @@
 
 import Applications from "../models/applicationSchema.js";
 import expressAsyncHandler from "express-async-handler";
+import Applicationcycle from "../models/cycleModel.js";
 
 //..@description---------------------------------------create submit applicant
 //..@api------------------------------------------------POST/api/user
 //..@access--------------------------------------------public
 
  const createApplication = expressAsyncHandler(async (req, res) => {
-  try {
+  const openCycle=await Applicationcycle.findOne({status:"open"})
+  if(!openCycle){
+    res.status(400)
+    throw new Error("No application cycle is open yet")
+  }
+  
     const {
       burSaryType,
       ward,
@@ -26,7 +32,10 @@ import expressAsyncHandler from "express-async-handler";
       motherName,
       fatherPhone,
       motherPhone,
+      mothersOccupation,
+      fathersOccupation,
       guardianName,
+      guardiansOccupation,
       guardianRelationship,
       guardianPhone,
 
@@ -34,6 +43,7 @@ import expressAsyncHandler from "express-async-handler";
       levelOfStudy,
       class: studentClass,
       yearOfStudy,
+      institutionBranch,
       admissionNo,
       totalFees,
       feeBalance,
@@ -45,6 +55,8 @@ import expressAsyncHandler from "express-async-handler";
 
       documents,
     } = req.body;
+
+    //this is ton make sure one sends id or birthcertificate picture
 
     // ================= BASIC VALIDATION =================
     if (!burSaryType){
@@ -107,12 +119,13 @@ import expressAsyncHandler from "express-async-handler";
       throw new Error("Fee balance cannot exceed total fees");
     }
 
-    // ================= AGE + DOCUMENT VALIDATION =================
-    const birthCertificate = documents?.find(
-      (doc) => doc.name === "birthCertificate"
-    );
-
-    const idCopy = documents?.find((doc) => doc.name === "idCopy");
+    //AGE + DOCUMENT VALIDATIOn
+     const birthCertificate = documents.find(
+        (doc) => doc.name === "Birth Certificate"
+      );
+      const idCopy = documents.find(
+        (doc) => doc.name === " National ID"
+      );
 
     if (Age < 18) {
       if (!birthCertificate?.file) {
@@ -166,6 +179,7 @@ import expressAsyncHandler from "express-async-handler";
       burSaryType,
       ward,
       location,
+      financialYear:openCycle.financialYear,
       subLocation,
       village,
 
@@ -181,9 +195,13 @@ import expressAsyncHandler from "express-async-handler";
       guardianName,
       guardianRelationship,
       guardianPhone,
+      mothersOccupation,
+      fathersOccupation,
+      guardiansOccupation,
 
       institutionName,
       levelOfStudy,
+      institutionBranch,
       class: studentClass,
       yearOfStudy,
       admissionNo,
@@ -211,13 +229,6 @@ import expressAsyncHandler from "express-async-handler";
       message: "Application submitted successfully",
       application,
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server error while creating application",
-      error: error.message,
-    });
-  }
 });
 //..@description--------------------------------------------get the all applicants or through filter
 //..@api-----------------------------------------------------GET/api/user/allusers

@@ -1,9 +1,11 @@
+
 import mongoose from "mongoose";
 
 const applicationSchema = new mongoose.Schema(
   {
     // basic info
     burSaryType: { type: String, required: true, trim: true },
+    financialYear:{type:String ,required:true},
     ward: { type: String, required: true, trim: true },
     location: { type: String, required: true, trim: true },
     subLocation: { type: String, required: true, trim: true },
@@ -24,6 +26,7 @@ const applicationSchema = new mongoose.Schema(
       required: true,
       enum: ["Secondary", "College", "University"],
     },
+    institutionBranch:{type:String},
     class: { type: String },
     yearOfStudy: { type: String },
     admissionNo: { type: String, required: true },
@@ -33,13 +36,16 @@ const applicationSchema = new mongoose.Schema(
     // family
     fatherName: { type: String },
     fatherPhone: { type: String },
+    fathersOccupation:{type:String},
 
     motherName: { type: String },
     motherPhone: { type: String },
+    mothersOccupation:{type:String},
 
     guardianName: { type: String },
     guardianRelationship: { type: String },
     guardianPhone: { type: String },
+    guardiansOccupation:{type:String},
 
     parenthoodStatus: {
       type: String,

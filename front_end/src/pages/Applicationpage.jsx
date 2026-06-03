@@ -6,6 +6,7 @@ import { useApplyMutation } from "@/applicationRedux/baseAppslice";
 import { useUploadsMutation ,useDeleteImageMutation} from "@/imageRedux/imageBase";
 import { useNavigate } from "react-router-dom";
 import { NumericFormat } from "react-number-format";
+import toast from "react-hot-toast";
 const steps = [
   "Personal Info",
   "Location",
@@ -61,11 +62,11 @@ const openPreview = (
   for (let i = 0; i < form.documents.length; i++) {
     const doc = form.documents[i];
     if (!doc.name) {
-      alert(`Select document type for document ${i + 1}`);
+      toast.error(`Select document type for document ${i + 1}`);
       return false;
     }
     if (!doc.files || doc.files.length === 0) {
-      alert(`Upload files for ${doc.name}`);
+      toast.error(`Upload files for ${doc.name}`);
       return false;
     }
   }
@@ -243,7 +244,7 @@ const removeSibling = (index) => {
             dispatch(updateFormData({ documents: updated }));
 
   } catch (error) {
-    console.log(error);
+    toast.error(error?.data?.message||"Error while uploading file");
   }
 };
 
@@ -284,8 +285,8 @@ const removeSibling = (index) => {
     });
 
   } catch (error) {
-    console.log(error);
-    alert("Failed to delete image");
+    
+    toast.error("Failed to delete image");
   }
 };
 
@@ -305,21 +306,22 @@ const removeSibling = (index) => {
 
     console.log(res);
 
-    alert("Application submitted successfully");
+    toast.success("Application submitted successfully");
 
     dispatch(resetApplicationForm());
 
   } catch (error) {
     console.log(error);
 
-    alert(
+    toast.error(
       error?.data?.message ||
       "Application submission failed"
     );
   }
 };
    const documentOptions = [
-  "Birth Certificate / National ID",
+  "Birth Certificate ",
+  " National ID",
   "Applicant ID Card",
   "Voter's Card",
   "Academic Transcript",
@@ -530,6 +532,14 @@ const removeSibling = (index) => {
                 value={form.admissionNo}
                  onChange={handleChange} />
 
+                 <input type="text"
+                 name="institutionBranch"
+                 placeholder="Institution Branch(for universities and Colleges)"
+                 className="input"
+                 value={form.institutionBranch}
+                 onChange={handleChange}
+                  />
+
               <input name="class"
                placeholder="Class / Course" 
                className="input" 
@@ -602,6 +612,14 @@ const removeSibling = (index) => {
       onChange={handleChange}
     />
 
+    <input type="text"
+    name="fathersOccupation"
+    placeholder="Your fathers Occupation"
+    value={form.fathersOccupation}
+    className="input"
+    onChange={handleChange}
+     />
+
     <input
       name="motherName"
       placeholder="Mother Name"
@@ -619,6 +637,14 @@ const removeSibling = (index) => {
       className="input"
       onChange={handleChange}
     />
+
+    <input type="text"
+    name="mothersOccupation"
+    value={form.mothersOccupation}
+    placeholder="Your Mothers Occupation"
+    className="input"
+    onChange={handleChange}
+     />
 
     {/* Parenthood Status */}
     <select
@@ -656,12 +682,11 @@ const removeSibling = (index) => {
       />
     )}
 
-    {/* ORPHAN CONDITIONAL FIELDS */}
-    {form.parenthoodStatus === "Orphan" && (
+    
       <>
         <input
           name="guardianName"
-          placeholder="Guardian Full Name"
+          placeholder="Guardian Name(If you dont leave with parents)"
           type="text"
           value={form.guardianName}
           className="input"
@@ -686,7 +711,7 @@ const removeSibling = (index) => {
           onChange={handleChange}
         />
       </>
-    )}
+  
 
   </div>
 )}

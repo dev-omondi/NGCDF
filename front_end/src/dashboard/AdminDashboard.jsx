@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback ,useMemo} from "react";
 import {
-  LayoutDashboard, FileText, Users, Clock, CheckCircle, XCircle,
-  Wallet, BarChart2, Bell, CalendarPlus, LogOut, Search, ChevronDown,
-  Menu, X, TrendingUp, TrendingDown, Download, Send, UserPlus, File,
-  ChevronRight, Shield, Globe, GraduationCap, Banknote,
-  CheckCircle2, AlertTriangle, Info, MapPin, RefreshCw
+  LayoutDashboard, Users,
+  Wallet, BarChart2, Bell, CalendarPlus,  Search, 
+  Menu, X, File,
+  ChevronRight, GraduationCap,
+  MapPin,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -14,18 +14,10 @@ import { useNavigate } from "react-router-dom";
 import { useApplicantsQuery } from "@/applicationRedux/baseAppslice";
 import { useSelector } from "react-redux";
 
-const ENABLE_NOTIFICATIONS = false;
 
 //Helpers 
 const formatCurrency = (v) =>
   v >= 1_000_000 ? `KES ${(v / 1_000_000).toFixed(2)}M` : `KES ${v?.toLocaleString()}`;
-
-const notifTypeConfig = {
-  new:     { icon: <FileText size={13} />,      bg: "bg-blue-100",  text: "text-blue-600"  },
-  approved:{ icon: <CheckCircle2 size={13} />,  bg: "bg-green-100", text: "text-green-600" },
-  alert:   { icon: <AlertTriangle size={13} />, bg: "bg-red-100",   text: "text-red-600"   },
-  system:  { icon: <Info size={13} />,          bg: "bg-slate-100", text: "text-slate-600" },
-};
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 const Skeleton = ({ className = "" }) => (
@@ -37,50 +29,11 @@ const Skeleton = ({ className = "" }) => (
     }} />
 );
 
-// ─── Color map ────────────────────────────────────────────────────────────────
-const colorMap = {
-  blue:   { light: "bg-blue-50",    text: "text-blue-600",    border: "border-blue-100"    },
-  amber:  { light: "bg-amber-50",   text: "text-amber-600",   border: "border-amber-100"   },
-  green:  { light: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-100" },
-  red:    { light: "bg-red-50",     text: "text-red-600",     border: "border-red-100"     },
-  purple: { light: "bg-purple-50",  text: "text-purple-600",  border: "border-purple-100"  },
-};
-
-// ─── Stat Card ────────────────────────────────────────────────────────────────
-const StatCard = ({ icon: Icon, title, value, trend, color = "blue", loading, formatter }) => {
-  const c  = colorMap[color];
-  const up = trend >= 0;
-  if (loading) return <Skeleton className="h-36" />;
-  return (
-    <div className={`bg-white rounded-2xl border ${c.border} p-5 hover:shadow-lg hover:shadow-blue-100/50 hover:-translate-y-0.5 transition-all duration-200 group`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-xl ${c.light} ${c.text} group-hover:scale-110 transition-transform duration-200`}>
-          <Icon size={20} />
-        </div>
-        <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full
-          ${up ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"}`}>
-          {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-          {Math.abs(trend)}%
-        </span>
-      </div>
-      <p className="text-2xl font-extrabold text-slate-800 mb-1 tracking-tight">
-        {formatter ? formatter(value) : value?.toLocaleString()}
-      </p>
-      <p className="text-sm text-slate-500 font-medium">{title}</p>
-    </div>
-  );
-};
-
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard"                         },
   { icon: Users,label: "Users",path:"/users"},
-  { icon: Clock,           label: "Pending Reviews", badge: 218       },
-  { icon: CheckCircle,     label: "Approved"                          },
-  { icon: XCircle,         label: "Rejected"                          },
-  { icon: Wallet,          label: "Allocations"                     },
   { icon: BarChart2,       label: "Reports"                           },
-  { icon: Bell,            label: "Notifications", badge: 5           },
   { icon: CalendarPlus, label: "Create Cycle", path:"/cycle/create" },
   {icon:File, label:"Cycle List", path:"/cycles"}
 ];
@@ -146,12 +99,6 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
             </button>
           );
         })}
-        <div className="pt-4 mt-3 border-t border-blue-800/60">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-           text-blue-300 hover:bg-red-500/15 hover:text-red-300 transition-all">
-            <LogOut size={16} /> Logout
-          </button>
-        </div>
       </nav>
 
       {/* System status */}
@@ -169,10 +116,10 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
 )};
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
-const Navbar = ({ onMenuClick, profile, notifications, profileLoading, notifLoading }) => {
-  const [notifOpen,   setNotifOpen]   = useState(false);
-  const [search,      setSearch]      = useState("");
-
+const Navbar = ({  onMenuClick,
+  selectedYear,
+  setSelectedYear,
+  financialYears,}) => {
   return (
     <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-sm">
       <div className="flex items-center gap-3 px-4 lg:px-6 h-16">
@@ -185,64 +132,19 @@ const Navbar = ({ onMenuClick, profile, notifications, profileLoading, notifLoad
           <GraduationCap size={17} className="text-blue-700" />
           <span className="font-bold text-blue-900 text-sm">Muhoroni Bursary</span>
         </div>
-
-      
-        <div className="hidden sm:flex flex-1 max-w-md items-center gap-2 bg-slate-50 border
-         border-blue-100 rounded-xl px-4 py-2 focus-within:border-blue-400 focus-within:ring-2
-          focus-within:ring-blue-100 transition-all">
-          <Search size={15} className="text-slate-400 shrink-0" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search applicants, wards, ref IDs…"
-            className="flex-1 bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none" />
-        </div>
-
-        <div className="flex items-center gap-1.5 ml-auto">
-          {/* Bell → GET /api/admin/notifications */}
-          <div className="relative">
-            <button onClick={() => { setNotifOpen(v => !v); setProfileOpen(false); }}
-              className="relative p-2.5 rounded-xl text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              <Bell size={18} />
-              {!notifLoading && notifications?.unread > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                  {notifications.unread}
-                </span>
-              )}
-            </button>
-
-            {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-blue-100 rounded-2xl shadow-xl overflow-hidden z-50">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                  <span className="font-bold text-slate-800 text-sm">Notifications</span>
-                  <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full">
-                    {notifications?.unread} unread
-                  </span>
-                </div>
-                <div className="max-h-64 overflow-y-auto divide-y divide-slate-50">
-                  {notifLoading
-                    ? [...Array(3)].map((_, i) => (
-                        <div key={i} className="p-4"><Skeleton className="h-10" /></div>
-                      ))
-                    : notifications?.items.map(n => {
-                        const cfg = notifTypeConfig[n.type] || notifTypeConfig.system;
-                        return (
-                          <div key={n.id}
-                            className={`flex gap-3 px-4 py-3 hover:bg-blue-50/50 cursor-pointer transition-colors ${!n.read ? "bg-blue-50/25" : ""}`}>
-                            <div className={`shrink-0 p-1.5 rounded-lg ${cfg.bg} ${cfg.text} mt-0.5`}>{cfg.icon}</div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs text-slate-700 leading-relaxed line-clamp-2">{n.message}</p>
-                              <p className="text-[10px] text-slate-400 mt-0.5">{n.time}</p>
-                            </div>
-                            {!n.read && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0 mt-1.5" />}
-                          </div>
-                        );
-                      })}
-                </div>
-                <div className="px-4 py-2.5 border-t border-slate-100">
-                  <button className="text-xs text-blue-600 font-semibold hover:text-blue-800 transition-colors">View all →</button>
-                </div>
-              </div>
-            )}
-          </div>
+          <div className="hidden sm:flex flex-1 justify-center items-center gap-6">
+            <p className="text-blue-600 font-bold">Select Finacial Year</p>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="bg-white border border-blue-200 rounded-xl px-4 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-200"
+          >
+            {financialYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </header>
@@ -251,7 +153,7 @@ const Navbar = ({ onMenuClick, profile, notifications, profileLoading, notifLoad
 
 // ─── Ward Bar Chart 
 // Each ward: { name, applicants, approved, rejected, underReview }
-const WardBarChart = ({ data, loading }) => {
+const WardBarChart = ({ data, loading,financialYear }) => {
   const [metric, setMetric] = useState("applicants");
 
   const metricConfig = {
@@ -260,10 +162,6 @@ const WardBarChart = ({ data, loading }) => {
     rejected:    { color: "#ef4444", label: "Rejected"         },
     underReview: { color: "#8b5cf6", label: "Under Review"     },
   };
-
-  const currentYear=new Date().getFullYear()
-  const nextYear=currentYear+1
-  const financialYear=`Financial Year ${currentYear}/${nextYear}`
 
   if (loading) return <Skeleton className="h-96" />;
 
@@ -336,7 +234,7 @@ const WardBarChart = ({ data, loading }) => {
 };
 
 // ─── Status Pie Chart ─────────────────────────────────────────────────────────
-// Fetched from GET /api/admin/analytics → data.statusBreakdown
+
 const StatusPieChart = ({ data, loading }) => {
   if (loading) return <Skeleton className="h-72" />;
 
@@ -467,12 +365,12 @@ const WardLeaderboard = ({ data, loading }) => {
 };
 
 // @description amount quick stats
-const AllocationStats = ({ applicants }) => {
+const AllocationStats = ({ applicants}) => {
   const stats = useMemo(() => {
     const wardTotals = {};
     let totalAllocated = 0;
 
-    applicants.forEach((app) => {
+      applicants.forEach((app) => {
       const ward = app.ward || "Unknown Ward";
       const amount = Number(app.ApprovedAmount) || 0;
 
@@ -557,6 +455,28 @@ export default function BursaryDashboard() {
   const userInfor=useSelector((state)=>state.auth.userInfor)
   const {data:applicantsData,isLoading:applicantsLoading,isError:applicantsError}=useApplicantsQuery()
   const applicants=applicantsData?.data||[]
+
+  const [selectedYear, setSelectedYear] = useState("All");
+  const financialYears = useMemo(() => {
+  const years = [
+    ...new Set(
+      applicants
+        .map(app => app.financialYear?.trim())
+        .filter(Boolean)
+    ),
+  ];
+
+  return ["All", ...years];
+}, [applicants]);
+
+const filteredApplicants = useMemo(() => {
+  if (selectedYear === "All") return applicants;
+
+  return applicants.filter(
+    app => app.financialYear === selectedYear
+  );
+}, [applicants, selectedYear]);
+
   console.log("applicants",applicants)
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -564,11 +484,11 @@ export default function BursaryDashboard() {
 
   //live stats from the back_end
     const stats = useMemo(() => {
-      const total = applicants.length;
+      const total = filteredApplicants.length;
 
-      const approved = applicants.filter(a => a.status === "Approved").length;
-      const rejected = applicants.filter(a => a.status === "Rejected").length;
-      const pending = applicants.filter(a =>
+      const approved = filteredApplicants.filter(a => a.status === "Approved").length;
+      const rejected = filteredApplicants.filter(a => a.status === "Rejected").length;
+      const pending = filteredApplicants.filter(a =>
         a.status === "Pending" || a.status === "Under-Review"
       ).length;
 
@@ -579,12 +499,12 @@ export default function BursaryDashboard() {
         rejectedApplications: { value: rejected, trend: 0 },
         fundsDisbursed: { value: approved * 15000, trend: 0 },
       };
-    }, [applicants]);
+    }, [filteredApplicants]);
       //live data for the words
      const analytics = useMemo(() => {
         const wardMap = {};
 
-        applicants.forEach((app) => {
+        filteredApplicants.forEach((app) => {
           const ward = app.ward || "Unknown";
 
           if (!wardMap[ward]) {
@@ -621,7 +541,7 @@ export default function BursaryDashboard() {
             { name: "Rejected", value: wards.reduce((a,b)=>a+b.rejected,0), color:"#ef4444" },
           ],
         };
-      }, [applicants]);
+      }, [filteredApplicants]);
 
   const fetchData = useCallback(async (key, endpoint, setter) => {
     setLoading(p => ({ ...p, [key]: true }));
@@ -640,12 +560,11 @@ export default function BursaryDashboard() {
   profile: false,
   notifications: false,
 };
-const notifications = { unread: 0, items: [] };
-const statCards = [];
 
-const currentYear=new Date().getFullYear()
-const nextYear=currentYear+1
-const financialYear=`Finacial Yaer ${currentYear}/${nextYear}`
+const financialYear =
+  selectedYear === "All"
+    ? "All Financial Years Included"
+    : selectedYear;
   
   return (
     <div className="min-h-screen bg-[#f4f6fb] font-sans">
@@ -662,12 +581,12 @@ const financialYear=`Finacial Yaer ${currentYear}/${nextYear}`
         activeNav={activeNav} setActiveNav={setActiveNav} />
 
       <div className="lg:pl-64 flex flex-col min-h-screen">
-        <Navbar
-          onMenuClick={() => setSidebarOpen(true)}
-          
-          profileLoading={loading.profile}
-          notifLoading={loading.notifications}
-        />
+       <Navbar
+            onMenuClick={() => setSidebarOpen(true)}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            financialYears={financialYears}
+          />
 
         <main className="flex-1 p-4 lg:p-6 space-y-5 max-w-screen-2xl mx-auto w-full">
 
@@ -699,17 +618,8 @@ const financialYear=`Finacial Yaer ${currentYear}/${nextYear}`
             </div>
           </div>
 
-          {/* Stat Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {statCards.map(({ key, icon, title, color, formatter }) => (
-              <StatCard key={key} icon={icon} title={title} color={color}
-                formatter={formatter} loading={loading.stats}
-                value={stats?.[key]?.value} trend={stats?.[key]?.trend} />
-            ))}
-          </div>
-
           {/* Ward Bar Chart – full width */}
-          <WardBarChart data={analytics?.wards} loading={loading.analytics} />
+          <WardBarChart data={analytics?.wards} loading={loading.analytics} financialYear={financialYear} />
 
           {/* Status Pie + Ward Leaderboard */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -718,11 +628,11 @@ const financialYear=`Finacial Yaer ${currentYear}/${nextYear}`
           </div>
 
           {/* Allocated amount stats */}
-            <AllocationStats applicants={applicants} />
+           <AllocationStats applicants={filteredApplicants} />
 
           {/* Footer */}
           <div className="text-center pb-4 pt-2 text-xs text-slate-400 border-t border-slate-200/60">
-            © 2024 Muhoroni Constituency Bursary Fund · Kisumu County Government .version 2.4.1
+            © 2026 Muhoroni Constituency Bursary Fund · Kisumu County Government .version 2.4.1
           </div>
         </main>
       </div>
