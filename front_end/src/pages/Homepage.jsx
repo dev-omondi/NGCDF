@@ -56,63 +56,57 @@ const Homepage = () => {
 const {data,isLoading,isError}=useOpenCycleQuery()
 
 const cycle=data?.data ||[]
-console.log("cycle",cycle)
+
 
 const Countdown = ({ endDate }) => {
-   if (!endDate) {
-    return "Application Closed";
-  }
-  const difference = new Date(endDate).getTime() - Date.now();
-  if (isNaN(difference) || difference <= 0) {
-    return "Application Closed";
-  }
+  const [timeLeft, setTimeLeft] = React.useState(null);
 
-  const [timeLeft, setTimeLeft] = useState(null);
+  React.useEffect(() => {
+    if (!endDate) {
+      setTimeLeft(null);
+      return;
+    }
 
-  useEffect(() => {
-    const updateCountdown = () => {
-      const difference = new Date(endDate).getTime() - Date.now();
+    const endTime = new Date(endDate).getTime();
 
-      if (difference <= 0) {
+    if (isNaN(endTime)) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const calculate = () => {
+      const now = Date.now();
+      const diff = endTime - now;
+
+      if (diff <= 0) {
         setTimeLeft(null);
         return;
       }
 
       setTimeLeft({
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor(
-          (difference % (1000 * 60 * 60 * 24)) /
-            (1000 * 60 * 60)
-        ),
-        minutes: Math.floor(
-          (difference % (1000 * 60 * 60)) /
-            (1000 * 60)
-        ),
-        seconds: Math.floor(
-          (difference % (1000 * 60)) / 1000
-        ),
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
       });
     };
+   
 
-    updateCountdown(); // run immediately
+    calculate();
 
-    const timer = setInterval(updateCountdown, 1000);
-
+    const timer = setInterval(calculate, 1000);
     return () => clearInterval(timer);
   }, [endDate]);
 
   if (!timeLeft) {
     return <span>Application Closed</span>;
   }
-
   return (
     <span>
-      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
-      {timeLeft.seconds}s
+      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
     </span>
   );
 };
-
 
   return (
     <div className="overflow-hidden w-full">
@@ -300,7 +294,7 @@ const Countdown = ({ endDate }) => {
         <div>
           <p className="text-xs text-gray-500">Opening Date</p>
           <p className="text-sm font-medium text-blue-500">
-            { cycle?.openingDate?new Date(cycle.openingDate).toDateString():"Application Closed"}
+            { cycle?.openningDate?new Date(cycle.openningDate).toDateString():"Application Closed"}
           </p>
         </div>
       </div>
@@ -311,7 +305,7 @@ const Countdown = ({ endDate }) => {
         <div>
           <p className="text-xs text-gray-500">Closing Date</p>
           <p className="text-sm font-medium text-blue-500">
-            { cycle.clossingDate?new Date(cycle.clossingDate).toDateString():"Application Closed"}
+            { cycle.closingDate?new Date(cycle.closingDate).toDateString():"Application Closed"}
           </p>
         </div>
       </div>
@@ -322,7 +316,7 @@ const Countdown = ({ endDate }) => {
         <div>
           <p className="text-xs text-gray-500">Countdown</p>
           <p className="text-sm font-medium text-blue-500">            
-              <Countdown endDate={cycle?.clossingDate} />
+              <Countdown endDate={cycle?.closingDate} />
               </p>
             </div>
           </div>

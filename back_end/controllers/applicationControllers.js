@@ -167,6 +167,7 @@ import Applicationcycle from "../models/cycleModel.js";
     const existing = await Applications.findOne({
       admissionNo,
       institutionName,
+      financialYear:openCycle.financialYear
     });
 
     if (existing) {

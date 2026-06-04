@@ -11,11 +11,11 @@ import { authToken,roleAuth } from "../middleawre/authToken.js";
 
 const router=express.Router()
 
+router.route("/open").get(getOpenCycle) 
 router.route("/").post(authToken,roleAuth("admin"),createCycle)
                 .get(authToken,roleAuth("admin"),getCycles)
 router.route("/:id").get(authToken,roleAuth("admin"),getCycle)
                     .put(authToken,roleAuth("admin"),updateCycle)
                     .delete(authToken,roleAuth("admin"),deleteCycle)
-router.route("/open").get(getOpenCycle)         
-
+        
 export default router

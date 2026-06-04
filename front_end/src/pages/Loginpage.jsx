@@ -23,7 +23,7 @@ const Signinpage = () => {
    useEffect(()=>{
     console.log(userInfor)
     if(isLoading)return
-    console.log(userInfor?.role)
+   
       if(userInfor){
         switch(userInfor.role){
           case "admin":
@@ -32,6 +32,9 @@ const Signinpage = () => {
           case "reviewer":
             navigate("/applicants/dashboard") 
             break;
+            case "finance":
+              navigate("/allocation")
+              break;
           default:
             navigate("/")  
         }

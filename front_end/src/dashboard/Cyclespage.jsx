@@ -91,14 +91,14 @@ const CyclesPage = () => {
                   <span className="font-medium text-slate-700">
                     Opening:
                   </span>{" "}
-                  {new Date(cycle.openningDate).toLocaleDateString()}
+                  {new Date(cycle.openningDate).toDateString()}
                 </p>
 
                 <p>
                   <span className="font-medium text-slate-700">
                     Closing:
                   </span>{" "}
-                  {new Date(cycle.closingDate).toLocaleDateString()}
+                  {new Date(cycle.closingDate).toDateString()}
                 </p>
               </div>
             </div>

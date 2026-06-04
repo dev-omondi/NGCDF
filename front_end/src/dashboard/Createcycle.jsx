@@ -123,7 +123,7 @@ const Createcycle = () => {
                   />
 
                   <input
-                    type="date"
+                    type="datetime-local"
                     name="openningDate"
                     value={formData.openningDate}
                     onChange={handleChange}
@@ -143,7 +143,7 @@ const Createcycle = () => {
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                   />
                   <input
-                    type="date"
+                    type="datetime-local"
                     name="closingDate"
                     value={formData.closingDate}
                     onChange={handleChange}

@@ -17,6 +17,7 @@ const ApplicantsPage = () => {
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [type,setType]=useState("all")
+  const [financialYear, setFinancialYear] = useState("all");
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
@@ -25,10 +26,16 @@ const ApplicantsPage = () => {
   const { data, isLoading, isError } = useApplicantsQuery({
     status,
     page,
+    financialYear,
     limit: 20,
   });
 
   const applicants = data?.data || [];
+
+  const financialYears = [
+  "all",
+  ...new Set(applicants.map((app) => app.financialYear).filter(Boolean))
+];
 
  const filtered = applicants?.filter((app) => {
   const q = search.toLowerCase();
@@ -51,10 +58,16 @@ const ApplicantsPage = () => {
       ? true
       : app.burSaryType?.toLowerCase() === type;
 
+  //financialYear filter
+  const matchesYear= 
+  financialYear==="all"?true
+  :app.financialYear===financialYear
+
   return (
     matchesSearch &&
     matchesStatus &&
-    matchesType
+    matchesType &&
+    matchesYear
   );
 });
 
@@ -126,7 +139,7 @@ const ApplicantsPage = () => {
 
           {/* CENTER NAVIGATION + FILTERS */}
           <div className="flex justify-center mt-6">
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3 ">
               {/* NAVIGATION */}
               {navLinks.map((link) => {
                 const Icon = link.icon;
@@ -150,6 +163,7 @@ const ApplicantsPage = () => {
                       transition
                       text-sm
                       font-medium
+                      cursor-pointer
                     "
                   >
                     <Icon size={16} />
@@ -173,6 +187,7 @@ const ApplicantsPage = () => {
                       border
                       text-sm
                       font-medium
+                      cursor-pointer
                       transition
                       ${
                         status === tab.key
@@ -187,57 +202,82 @@ const ApplicantsPage = () => {
                 );
               })}
 
-                    {/* TYPE FILTERS */}
-      <div className="flex items-center gap-2 ml-2">
-        <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
-          <Filter size={16} />
-          Type
-        </div>
-
-        <button
-          onClick={() => setType("all")}
-          className={`
-            px-4 py-2 rounded-xl border text-sm font-medium transition
-            ${
-              type === "all"
-                ? "bg-purple-600 text-white border-purple-600"
-                : "bg-white text-slate-700 hover:bg-slate-100"
-            }
-          `}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setType("bursary")}
-          className={`
-            px-4 py-2 rounded-xl border text-sm font-medium transition
-            ${
-              type === "bursary"
-                ? "bg-purple-600 text-white border-purple-600"
-                : "bg-white text-slate-700 hover:bg-slate-100"
-            }
-          `}
-        >
-          Bursary
-        </button>
-        <button
-          onClick={() => setType("scholarship")}
-          className={`
-            px-4 py-2 rounded-xl border text-sm font-medium transition
-            ${
-              type === "scholarship"
-                ? "bg-purple-600 text-white border-purple-600"
-                : "bg-white text-slate-700 hover:bg-slate-100"
-            }
-          `}
-        >
-          Scholarship
-        </button>
-      </div>
-                  </div>
+                            {/* TYPE FILTERS */}
+              <div className="flex items-center gap-2 ml-2">
+                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+                  <Filter size={16} />
+                  Type
                 </div>
+
+                <button
+                  onClick={() => setType("all")}
+                  className={`
+                    px-4 py-2 rounded-xl border text-sm font-medium transition cursor-pointer
+                    ${
+                      type === "all"
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-white text-slate-700 hover:bg-slate-100"
+                    }
+                  `}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setType("bursary")}
+                  className={`
+                    px-4 py-2 rounded-xl border text-sm font-medium transition cursor-pointer
+                    ${
+                      type === "bursary"
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-white text-slate-700 hover:bg-slate-100"
+                    }
+                  `}
+                >
+                  Bursary
+                </button>
+                <button
+                  onClick={() => setType("scholarship")}
+                  className={`
+                    px-4 py-2 rounded-xl border text-sm font-medium transition 
+                    ${
+                      type === "scholarship"
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-white text-slate-700 hover:bg-slate-100"
+                    }
+                  `}
+                >
+                  Scholarship
+                </button>
               </div>
-            </div>
+              <div className="flex items-center gap-2">
+  <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+    <Filter size={16} />
+    Year
+  </div>
+
+  <select
+    value={financialYear}
+    onChange={(e) => setFinancialYear(e.target.value)}
+    className="
+      px-4 py-2 rounded-xl border text-sm font-medium
+      bg-white text-slate-700
+      hover:bg-slate-100
+      outline-none
+      cursor-pointer
+    "
+  >
+   {financialYears.map((year) => (
+  <option key={year} value={year}>
+    {year === "all" ? "All Years" : year}
+      </option>
+    ))}
+  </select>
+</div>
+          </div>
+          </div>
+          </div>
+          </div>
+            
 
             {/* PAGE CONTENT */}
             <div className="max-w-7xl mx-auto p-4 lg:p-6">

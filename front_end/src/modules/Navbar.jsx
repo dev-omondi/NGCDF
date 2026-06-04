@@ -56,13 +56,15 @@ const Navbar = () => {
         <div className="flex items-center justify-between py-2">
 
           {/* LOGO */}
-          <div className="flex-shrink-0">
+         <Link to={"/"}>
+             <div className="flex-shrink-0">
             <img
               src={ngcdf_logo}
               alt="ngcdf_logo"
-              className="h-30 md:h-36 w-auto"
+              className="h-30 md:h-24 w-auto"
             />
           </div>
+         </Link>
 
           {/* DESKTOP NAVIGATION */}
           <div className="flex flex-col gap-4 ">
@@ -70,7 +72,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8">
             
             {/* LINKS */}
-            <section className="flex items-center gap-5 text-sm font-semibold text-blue-500">
+            <section className="flex items-center gap-5  font-semibold text-blue-500">
               
               <Link
               to={"/allocation"}
@@ -83,7 +85,7 @@ const Navbar = () => {
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
                 to={"/applicants/dashboard"}
               >
-                Funding
+                Help & Support
               </Link>
 
               <Link
@@ -96,7 +98,7 @@ const Navbar = () => {
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
               >
-                More...
+                Overview
               </Link>
             </section>
 

@@ -23,19 +23,24 @@ const Fundsallocation = () => {
 
   const [selectedApp, setSelectedApp] = useState(null);
   const [amount, setAmount] = useState(null);
-
+  const [financialYear, setFinancialYear] = useState("all");
   const navigate = useNavigate();
 
   const { data, isLoading, isError,refetch } = useApplicantsQuery({
     status,
     page,
+    financialYear,
     limit: 20,
   });
 
   const [updateAmount] = useUpdateAmountMutation();
  
   const applicants = data?.data || [];
-   
+  const financialYears = [
+    "all",
+    ...new Set(applicants.map((app) => app.financialYear).filter(Boolean))
+  ];
+    
   // FILTER LOGIC
   const filtered = applicants?.filter((app) => {
     const q = search.toLowerCase();
@@ -52,7 +57,12 @@ const Fundsallocation = () => {
         ? true
         : app.burSaryType?.toLowerCase() === type;
 
-    return matchesSearch && matchesStatus && matchesType;
+    const matchesYear =
+     financialYear === "all"
+    ? true
+    : app.financialYear === financialYear;
+
+    return matchesSearch && matchesStatus && matchesType&&matchesYear;
   });
 
   // OPEN MODAL
@@ -80,6 +90,9 @@ const Fundsallocation = () => {
     { key: "approved", label: "Approved", icon: CheckCircle },
     { key: "rejected", label: "Rejected", icon: XCircle },
   ];
+  const sortedApplicants = [...filtered].sort((a, b) => {
+  return (a.ApprovedAmount || 0) - (b.ApprovedAmount || 0);
+});
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -121,7 +134,7 @@ const Fundsallocation = () => {
                     key={t.key}
                     onClick={() => setStatus(t.key)}
                     className={`
-                      flex items-center gap-2 px-4 py-2 rounded-xl border text-sm transition
+                      flex items-center gap-2 px-4 py-2 rounded-xl border text-sm transition cursor-pointer
                       ${
                         status === t.key
                           ? "bg-blue-600 text-white"
@@ -137,6 +150,7 @@ const Fundsallocation = () => {
             </div>
 
             {/* TYPE FILTER */}
+            <div className="flex gap-8">
             <div className="flex flex-wrap justify-center items-center gap-2">
               <Filter size={16} className="text-slate-500" />
 
@@ -145,7 +159,7 @@ const Fundsallocation = () => {
                   key={t}
                   onClick={() => setType(t)}
                   className={`
-                    px-4 py-2 rounded-xl border text-sm capitalize transition
+                    px-4 py-2 rounded-xl border text-sm capitalize transition cursor-pointer
                     ${
                       type === t
                         ? "bg-purple-600 text-white"
@@ -156,6 +170,24 @@ const Fundsallocation = () => {
                   {t}
                 </button>
               ))}
+            </div>
+                          {/* YEAR FILTER */}
+              <div className="flex flex-wrap justify-center items-center gap-2">
+                <Filter size={16} className="text-slate-500" />
+
+                <select
+                  value={financialYear}
+                  onChange={(e) => setFinancialYear(e.target.value)}
+                  className="px-4 py-2 rounded-xl border text-sm bg-white text-slate-700 cursor-pointer
+                   hover:bg-slate-50 outline-none"
+                >
+                  {financialYears.map((year) => (
+                    <option key={year} value={year}>
+                      {year === "all" ? "All Years" : year}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -198,30 +230,28 @@ const Fundsallocation = () => {
                 </tr>
               </thead>
 
-  <tbody>
-    {filtered?.map((app,index) => (
-      <tr
-        key={app._id}
-        className="border-t hover:bg-slate-50 align-middle"
-      >  <td className="p-2 ">{index+1}</td>
-        <td className="p-2 truncate">{app.fullName}</td>
-        <td className="p-2 truncate">{app.institutionName}</td>
-        <td className="p-2 capitalize">{app.burSaryType}</td>
-        <td className="p-2">{app.status}</td>
-        <td className="p-2 font-semibold whitespace-nowrap">
-          KES {app.ApprovedAmount?.toLocaleString() || 0}
-        </td>
-        <td className="p-2">
-          <button
-            onClick={() => openEditModal(app)}
-                    className="bg-green-600 text-white px-3 py-1 rounded-lg"
-                  >
-            <Wallet size={24} />
-            </button>
-            </td>
-              </tr>
-            ))}
-          </tbody>
+                  <tbody>
+  {sortedApplicants?.map((app, index) => (
+    <tr key={app._id} className="border-t hover:bg-slate-50 align-middle">
+      <td className="p-2">{index + 1}</td>
+      <td className="p-2 truncate">{app.fullName}</td>
+      <td className="p-2 truncate">{app.institutionName}</td>
+      <td className="p-2 capitalize">{app.burSaryType}</td>
+      <td className="p-2">{app.status}</td>
+      <td className="p-2 font-semibold whitespace-nowrap">
+        KES {app.ApprovedAmount?.toLocaleString() || 0}
+      </td>
+      <td className="p-2">
+        <button
+          onClick={() => openEditModal(app)}
+          className="bg-green-600 text-white px-3 py-1 rounded-lg"
+        >
+          <Wallet size={24} />
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
         </table>
             </div>
           </div>

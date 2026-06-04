@@ -46,16 +46,20 @@ const App = () => {
           <Route path='/login' element={<Loginpage/>}/>
           <Route path='/register' element={<Registerpage/>}/>
           <Route path='/bursary/application' element={<ApplicationForm/>}/>
-          <Route path='/applicants/dashboard' element={<ApplicantsPage/>}/>
           <Route path='applicant/:id' element={<ApplicantReviewPage/>}/>
-          <Route path='/allocation' element={<Fundsallocation/>}/>
-          <Route element={<Protectpage/>}>
+          <Route element={<Protectpage allowedRoles={["admin"]}/> }>
             <Route path='/admin/dashboard' element={<BursaryDashboard/>}/>
             <Route path='/cycles' element={<Cyclespage/>}/>
             <Route path='/cycle/:id' element={<Cyclepage/>}/>
             <Route path='/users' element={<Userspage/>}/>
             <Route path='/cycle/create' element={<Createcycle/>} />
           </Route>
+          <Route element={<Protectpage allowedRoles={["reviewer"]}/>}>
+            <Route path='/applicants/dashboard' element={<ApplicantsPage/>}/>
+          </Route>
+            <Route element={<Protectpage allowedRoles={["finance"]}/>}>
+               <Route path='/allocation' element={<Fundsallocation/>}/>
+            </Route>
           <Route path='/user/:id' element={<Userpage/>}/>
           <Route path='/profile/:id' element={<Profilepage/>}/>
         </Route>

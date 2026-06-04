@@ -2,14 +2,14 @@ import React from 'react'
 import { Navigate,Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
-const Protectpage = () => {
+const Protectpage = ({allowedRoles}) => {
     const userInfor=useSelector((state)=>state.auth.userInfor)
   
     if(!userInfor){
-        return <Navigate to={"/login"}/>
+        return <Navigate to={"/login"} replace/>
     }
-    if (userInfor.role!=="admin") {
-        return <Navigate to={"/"}/>
+    if (!allowedRoles.includes(userInfor.role)){
+        return <Navigate to={"/"} replace/>
     }
     return <Outlet/>
 }

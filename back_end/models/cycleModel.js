@@ -22,6 +22,5 @@ const cycleSchema=mongoose.Schema({
     }
    
 },{timestamps:true})
-
 const Applicationcycle=mongoose.model("Applicationcycle",cycleSchema)
 export default Applicationcycle

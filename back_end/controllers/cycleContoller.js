@@ -85,13 +85,13 @@ const getCycle = expressAsyncHandler(async (req, res) => {
 //..@access--------------------------------------------------------public
 const getOpenCycle = expressAsyncHandler(async (req, res) => {
   const cycle = await Applicationcycle.findOne({
-    status: "open",
+    status:"open",
   });
   if (!cycle) {
     res.status(404);
     throw new Error("No open cycle found");
   }
-  res.status(200).json(cycle);
+  res.status(200).json({data:cycle});
 });
 
 //..@description----------------------------------------------------delete a cycle

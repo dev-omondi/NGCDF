@@ -147,12 +147,12 @@ const Cyclepage = () => {
 
           <p className="text-slate-600">
             Opening:{" "}
-            {new Date(cycle.openningDate).toLocaleDateString()}
+            {new Date(cycle.openningDate).toDateString()}
           </p>
 
           <p className="text-slate-600">
             Closing:{" "}
-            {new Date(cycle.closingDate).toLocaleDateString()}
+            {new Date(cycle.closingDate).toDateString()}
           </p>
         </div>
 
@@ -184,7 +184,7 @@ const Cyclepage = () => {
             <div>
               <label className="text-sm">Opening Date</label>
               <input
-                type="date"
+                type="datetime-local"
                 name="openningDate"
                 value={formData.openningDate}
                 onChange={handleChange}
@@ -195,7 +195,7 @@ const Cyclepage = () => {
             <div>
               <label className="text-sm">Closing Date</label>
               <input
-                type="date"
+                type="datetime-local"
                 name="closingDate"
                 value={formData.closingDate}
                 onChange={handleChange}
