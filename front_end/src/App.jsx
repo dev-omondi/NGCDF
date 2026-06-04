@@ -20,6 +20,8 @@ import { Toaster } from "react-hot-toast";
 import Createcycle from './dashboard/Createcycle'
 import Cyclespage from './dashboard/Cyclespage'
 import Cyclepage from './dashboard/Cyclepage'
+import SupportPage from './pages/Supportpage'
+import ApplicationGuidePage from './pages/Applicationguide'
 const App = () => {
 
   const navigate=useNavigate()
@@ -47,6 +49,8 @@ const App = () => {
           <Route path='/register' element={<Registerpage/>}/>
           <Route path='/bursary/application' element={<ApplicationForm/>}/>
           <Route path='applicant/:id' element={<ApplicantReviewPage/>}/>
+          <Route path='/support' element={<SupportPage/>}/>
+          <Route path='/application/guide' element={<ApplicationGuidePage/>}/>
           <Route element={<Protectpage allowedRoles={["admin"]}/> }>
             <Route path='/admin/dashboard' element={<BursaryDashboard/>}/>
             <Route path='/cycles' element={<Cyclespage/>}/>

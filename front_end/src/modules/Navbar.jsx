@@ -75,7 +75,7 @@ const Navbar = () => {
             <section className="flex items-center gap-5  font-semibold text-blue-500">
               
               <Link
-              to={"/allocation"}
+              to={"/"}
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
               >
                 Home
@@ -83,7 +83,7 @@ const Navbar = () => {
 
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
-                to={"/applicants/dashboard"}
+                to={"/support"}
               >
                 Help & Support
               </Link>

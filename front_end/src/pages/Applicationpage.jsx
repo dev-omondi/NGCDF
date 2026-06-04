@@ -199,7 +199,6 @@ const removeSibling = (index) => {
     });
     const res = await uploads(formData).unwrap(); 
 
-    console.log('image upload response',res)
     // res should return array of URLs
     const updated = form.documents.map((doc, i) =>
         i === index
@@ -925,9 +924,10 @@ const removeSibling = (index) => {
         return (
           <div
             key={index}
-            className="border border-slate-200 rounded-2xl p-5 bg-slate-50"
+            className="border border-slate-200 rounded-2xl p-5 bg-slate-50" 
           >
             {/* TOP ROW */}
+            <section className="flex flex-col">
             <div className="flex flex-col md:flex-row gap-3 items-center">
               {/* DOCUMENT NAME */}
               <select
@@ -996,17 +996,22 @@ const removeSibling = (index) => {
                   Add
                 </button>
               )}
-
             </div>
+            <div className="mt-3">
+                    <p
+                      className={`text-sm ${
+                        doc.files?.length > 0 ? "text-green-600" : "text-slate-500"
+                      }`}
+                    >
+                      {doc.files?.length > 0
+                        ? `${doc.files.length} ${
+                            doc.files.length === 1 ? "file" : "files"
+                          } selected`
+                        : "No file selected"}
+                    </p>
+                  </div>
+          </section>
 
-            {/* FILE PREVIEW */}
-            {doc.file && (
-              <div className="mt-3">
-                <p className="text-sm text-green-600">
-                  Selected File: {doc.fileName}
-                </p>
-              </div>
-            )}
 
             {/* REMOVE BUTTON */}
             {form.documents.length > 1 && (
