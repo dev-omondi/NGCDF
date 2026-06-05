@@ -87,6 +87,12 @@ const Navbar = () => {
               >
                 Help & Support
               </Link>
+              <Link
+                className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
+                to={"/application/status"}
+              >
+                Application Status
+              </Link>
 
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
@@ -314,29 +320,32 @@ const Navbar = () => {
         {/* MOBILE LINKS */}
         <div className="flex-1 flex flex-col justify-start pt-10 items-center gap-7 text-blue-600 font-semibold text-sm">
 
-          <Link onClick={() => setOpen(false)}>
+          <Link onClick={() => setOpen(false)}
+          to={"/"}
+          >
             Home
           </Link>
 
-          <Link onClick={() => setOpen(false)}>
-            Funding
+          <Link onClick={() => setOpen(false)}
+          to={"/support"}
+          >
+            Help & Support
           </Link>
 
           <Link onClick={() => setOpen(false)} to={"/bursary/application"}>
             Apply Now
           </Link>
 
-          <Link onClick={() => setOpen(false)}>
-            Projects
+          <Link onClick={() => setOpen(false)}
+          to={"/application/status"}
+          >
+            Application Status
           </Link>
 
           <Link onClick={() => setOpen(false)}>
-            Suggestions
+            Overview
           </Link>
 
-          <Link onClick={() => setOpen(false)}>
-            Contact
-          </Link>
 
           {/* MOBILE AUTH */}
           {!userInfor && (
