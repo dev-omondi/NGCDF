@@ -81,6 +81,9 @@ if (isLoading) {
     }
   };
 
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const documents = applicant?.documents || [];
   const siblings = applicant?.siblings || [];
 
@@ -235,35 +238,39 @@ if (isLoading) {
             </div>
 
             {/* ================= DOCUMENTS ================= */}
-            <div className="bg-white border rounded-xl p-6">
-              <h2 className="font-bold mb-3">Documents</h2>
+              {/* ================= DOCUMENTS ================= */}
+<div className="bg-white border rounded-xl p-6">
+  <h2 className="text-xl font-bold mb-5">
+    Uploaded Documents
+  </h2>
 
-              {documents.length === 0 ? (
-                <p className="text-slate-400">No documents uploaded</p>
-              ) : (
-                documents.map((doc, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center border p-3 rounded-lg mb-2"
+        {documents.length === 0 ? (
+          <p className="text-slate-400">
+            No documents uploaded
+          </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {documents.map((doc, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedCategory(doc)}
+                    className="border rounded-xl p-5 bg-slate-50 hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
                   >
-                    <div className="flex items-center gap-2">
-                      <FileText size={16} />
-                      <span className="truncate max-w-[200px]">
+                    <div className="flex items-center gap-3 mb-3">
+                      <FileText className="text-blue-600" />
+                      <h3 className="font-semibold text-slate-800">
                         {doc.name}
-                      </span>
+                      </h3>
                     </div>
 
-                    <button
-                      onClick={() => setSelectedDoc(doc)}
-                      className="text-blue-600 flex items-center gap-1"
-                    >
-                      <Eye size={14} />
-                      View
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
+                    <p className="text-sm text-slate-500">
+                      {doc.files?.length || 0} file(s)
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
             {/* ================= EVALUATION ================= */}
             <div className="bg-white border rounded-xl p-6">
@@ -311,49 +318,79 @@ if (isLoading) {
           </>
         )}
       </div>
+      {selectedCategory && (
+  <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+    <div className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
 
-      {/* ================= FIXED DOCUMENT MODAL ================= */}
-      {selectedDoc && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b p-4">
+        <h3 className="font-bold text-lg">
+          {selectedCategory.name}
+        </h3>
 
-          <div className="bg-white w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl">
+        <button
+          onClick={() => setSelectedCategory(null)}
+          className="p-2 rounded-lg hover:bg-slate-100"
+        >
+          <X size={20} />
+        </button>
+      </div>
 
-            {/* HEADER */}
-            <div className="flex justify-between items-center p-3 border-b bg-slate-50">
-              <h3 className="font-semibold truncate">
-                {selectedDoc.name}
-              </h3>
+      {/* Files */}
+      <div className="p-5 overflow-y-auto max-h-[75vh]">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 
-              <button
-                onClick={() => setSelectedDoc(null)}
-                className="p-2 hover:bg-slate-200 rounded-lg"
-              >
-                <X />
-              </button>
+          {selectedCategory.files?.map((file, i) => (
+            <div
+              key={i}
+              onClick={() => setSelectedFile(file)}
+              className="cursor-pointer border rounded-xl overflow-hidden hover:shadow-lg transition"
+                >
+                  <img
+                    src={file}
+                    alt=""
+                    className="h-40 w-full object-cover"
+                  />
+
+                  <div className="p-3 flex justify-center">
+                    <Eye size={18} />
+                  </div>
+                </div>
+              ))}
+
             </div>
-
-            {/* CONTENT */}
-            <div className="p-4 flex justify-center bg-slate-100">
-
-              {selectedDoc.file?.includes("image") ? (
-                <img
-                  src={selectedDoc.file}
-                  alt="document"
-                  className="max-h-[75vh] object-contain rounded-lg"
-                />
-              ) : (
-                <iframe
-                  src={selectedDoc.file}
-                  className="w-full h-[75vh] rounded-lg"
-                  title="document"
-                />
-              )}
-
-            </div>
-
           </div>
         </div>
-      )}
+      </div>
+    )}
+    {selectedFile && (
+  <div className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4">
+
+    <button
+      onClick={() => setSelectedFile(null)}
+      className="absolute top-5 right-5 bg-white rounded-full p-2 hover:bg-slate-200"
+    >
+      <X size={24} />
+    </button>
+
+    <div className="w-full max-w-6xl flex justify-center">
+
+      <img
+        src={selectedFile}
+        alt="Document"
+        className="
+          max-h-[90vh]
+          max-w-full
+          object-contain
+          rounded-xl
+          shadow-2xl
+        "
+      />
+
+    </div>
+  </div>
+)}
+      
     </div>
   );
 };
