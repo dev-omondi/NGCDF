@@ -20,9 +20,10 @@ dbConnect()
 app.use(cors({
      origin: [
     "http://localhost:3000",
-    "https://ngcdf.vercel.app"
-        ],
-    credentials: true
+    "https://ngcdf.vercel.app",
+    "https://ngcdf-2f7zqm4ne-dev-omondi-s-projects.vercel.app"
+],
+    credentials:true
 }))
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
