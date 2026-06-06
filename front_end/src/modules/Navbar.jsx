@@ -89,18 +89,16 @@ const Navbar = () => {
               </Link>
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
-                to={"/application/status"}
-              >
-                Application Status
-              </Link>
-
-              <Link
-                className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
                 to={"/bursary/application"}
               >
                 Apply Now
               </Link>
-
+              <Link
+                className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
+                to={"/application/status"}
+              >
+                Check Status
+              </Link>
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
               >

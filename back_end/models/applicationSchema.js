@@ -80,7 +80,7 @@ const applicationSchema = new mongoose.Schema(
     documents: [
       {
         name: { type: String },
-        file: { type:[String], required: true }, // URL or path
+        files: { type:[String], required: true }, // URL or path
       },
     ],
 

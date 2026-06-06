@@ -21,7 +21,6 @@ const Signinpage = () => {
  
 
    useEffect(()=>{
-    console.log(userInfor)
     if(isLoading)return
    
       if(userInfor){
@@ -44,7 +43,6 @@ const Signinpage = () => {
   const handleSubmit=async(e)=>{
     e.preventDefault()
     setFormError("")
-    console.log("userInfor",userInfor)
    
     try {
       const userData={
@@ -57,7 +55,6 @@ const Signinpage = () => {
       email:"",
       password:""
     })
-    console.log("res",res)
     if(res?.user?.role){
       navigate("/admin/dashboard")
     }
@@ -345,7 +342,9 @@ const Signinpage = () => {
             <p className="si-eyebrow">Welcome back</p>
             <h1 className="si-title">Sign in to your account</h1>
             <p className="si-description">Good to see you again. Enter your details below.</p>
-            <button className="si-register-top">
+            <button className="si-register-top"
+            onClick={()=>navigate("/register")}
+            >
               Don't have an account? Register
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -377,12 +376,16 @@ const Signinpage = () => {
               </div>
             </div>
 
-            <button type="submit" className="si-submit">Sign In</button>
+            <button type="submit" 
+            disabled={isLoading}
+            className={`si-submit ${isLoading?"opacity-50 cursor-not-allowed":""}`}>Sign In</button>
           </form>
 
           <div className="si-footer">
             Don't have an account?{' '}
-            <button className="si-footer-link">Create one</button>
+            <button className="si-footer-link"
+            onClick={()=>navigate("/register")}
+            >Create one</button>
           </div>
         </div>
       </div>

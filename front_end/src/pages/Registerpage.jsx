@@ -323,7 +323,9 @@ const Registerpage = () => {
             <p className="rp-eyebrow">Welcome</p>
             <h1 className="rp-title">Create your account</h1>
             <p className="rp-description">Fill in the details below to get started.</p>
-            <button className="rp-sign-in-top">
+            <button className="rp-sign-in-top"
+            onClick={()=>navigate("/login")}
+            >
               Already have an account? Sign In
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -372,12 +374,16 @@ const Registerpage = () => {
               </div>
             </div>
 
-            <button type="submit" className="rp-submit">Create Account</button>
+            <button type="submit" 
+            disabled={isLoading}
+            className={`rp-submit ${isLoading?"opacity-60 cursor-not-allowed":""}`}>Create Account</button>
           </form>
 
           <div className="rp-footer">
             Already have an account?{' '}
-            <button className="rp-footer-link">Sign In</button>
+            <button className="rp-footer-link"
+            onClick={()=>navigate("/login")}
+            >Sign In</button>
           </div>
         </div>
       </div>

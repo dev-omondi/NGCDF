@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
  const Skeleton = ({ className }) => {
   return (
     <div className={`animate-pulse bg-slate-200 rounded ${className}`} />
@@ -22,9 +22,14 @@ import toast from "react-hot-toast";
 
 
 const ApplicantReviewPage = () => {
+  const navigate=useNavigate()
   const {id}=useParams()
-  const [selectedDoc, setSelectedDoc] = useState(null);
+
   const [remarks, setRemarks] = useState("");
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
 
   const { data, isLoading, isError } = useApplicantQuery(id);
  
@@ -81,9 +86,7 @@ if (isLoading) {
     }
   };
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-
+  
   const documents = applicant?.documents || [];
   const siblings = applicant?.siblings || [];
 
@@ -92,9 +95,15 @@ if (isLoading) {
 
       {/* HEADER */}
       <div className="bg-white border-b sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 py-5 flex justify-between items-center">
+        <div className="max-w-5xl mx-auto px-4 py-5 flex justify-between items-center">
+            <button
+              onClick={() => navigate("/applicants")}
+              className="px-4 py-2 rounded-lg bg-green-400 hover:bg-green-600 text-white text-sm"
+            >
+              ← Back to Applicants
+            </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">
+            <h1 className="text-2xl font-bold text-blue-600">
               Applicant Review
             </h1>
             <p className="text-sm text-slate-500">
@@ -145,7 +154,7 @@ if (isLoading) {
             {/** Student Details/Information*/}
              <div className="bg-white border rounded-xl p-6">
               <h2 className="text-xl font-bold mb-4">
-                Applicant Details/Information
+                  Particulars Of The Student 
               </h2>
 
               <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -156,6 +165,7 @@ if (isLoading) {
                 <p><b>Level of Study:</b> {applicant.levelOfStudy}</p>
                 <p><b>Admision Number:</b> {applicant.admissionNo}</p>
                 <p><b>Course Take By Student:</b> {applicant.class}</p>
+                <p><b>Institution Branch:</b>{applicant.institutionBranch}</p>
                 <p><b>Toatl Fees:</b>{""} KES { Number( applicant.totalFees).toLocaleString()}</p>
                 <p><b>Fee Balance:</b>{""}KES {Number( applicant.feeBalance).toLocaleString()}</p>
               </div>
@@ -171,9 +181,12 @@ if (isLoading) {
                 <p><b>Parenthood Satus Of Student:</b> {applicant.parenthoodStatus}</p>
                 <p><b>Fathers Name:</b> {applicant.fatherName}</p>
                 <p><b>Fathers Contact:</b> {applicant.fatherPhone}</p>
+                <p><b>Father's Occupation:</b>{applicant.fathersOccupation}</p>
                 <p><b>Mothers Name:</b> {applicant.motherName}</p>
                 <p><b>Mothers Contact:</b> {applicant.motherPhone}</p>
+                <p><b>Mother's Occupation:</b>{applicant.mothersOccupation}</p>
                 <p><b>Guardian Name:</b> {applicant.guardianName}</p>
+                <p><b>Guardian's Occupation:</b>{applicant.guardiansOccupation}</p>
                 <p><b>Guardian Conatc:</b> {applicant.guardianPhone}</p>
                 <p><b>Relationship Of Student With Guardian:</b> {applicant.guardianRelationship}</p>
               </div>
@@ -214,7 +227,7 @@ if (isLoading) {
 
             {/* ================= SIBLINGS ================= */}
             <div className="bg-white border rounded-xl p-6">
-              <h2 className="font-bold mb-3">Siblings</h2>
+              <h2 className="font-bold mb-3">Proof Of Burden(List of siblings in Highscol,University &Colleges)</h2>
 
               {siblings.length === 0 ? (
                 <p className="text-slate-400">No siblings added</p>
@@ -364,33 +377,65 @@ if (isLoading) {
       </div>
     )}
     {selectedFile && (
-  <div className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4">
+  <div className="fixed inset-0 z-[60] bg-black/95">
 
-    <button
-      onClick={() => setSelectedFile(null)}
-      className="absolute top-5 right-5 bg-white rounded-full p-2 hover:bg-slate-200"
-    >
-      <X size={24} />
-    </button>
+    {/* Header */}
+    <div className="sticky top-0 z-10 flex items-center justify-between px-4 md:px-6 py-3 bg-black/80 backdrop-blur border-b border-white/10">
 
-    <div className="w-full max-w-6xl flex justify-center">
+      <div>
+        <h3 className="text-white font-semibold text-sm md:text-base">
+          Document Preview
+        </h3>
+        <p className="text-slate-400 text-xs md:text-sm">
+          Scroll to inspect the document
+        </p>
+      </div>
 
-      <img
-        src={selectedFile}
-        alt="Document"
+      <button
+        onClick={() => setSelectedFile(null)}
         className="
-          max-h-[90vh]
-          max-w-full
-          object-contain
-          rounded-xl
-          shadow-2xl
+          h-10 w-10
+          flex items-center justify-center
+          rounded-full
+          bg-white
+          hover:bg-slate-200
+          transition
         "
-      />
+      >
+        <X size={22} />
+      </button>
 
     </div>
-  </div>
-)}
-      
+
+    {/* Scrollable Content */}
+    <div
+      className="
+        h-[calc(100vh-72px)]
+        overflow-y-auto
+        overflow-x-hidden
+        px-2 md:px-6 py-4
+      "
+    >
+      <div className="flex justify-center">
+
+        <img
+          src={selectedFile}
+          alt="Document"
+          className="
+            w-full
+            max-w-7xl
+            h-auto
+            rounded-xl
+            bg-white
+            shadow-2xl
+          "
+        />
+          </div>
+        </div>
+
+      </div>
+    )}
+          
     </div>
   );
 };

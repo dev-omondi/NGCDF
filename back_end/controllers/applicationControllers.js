@@ -119,21 +119,24 @@ import Applicationcycle from "../models/cycleModel.js";
       throw new Error("Fee balance cannot exceed total fees");
     }
 
+ 
+
     //AGE + DOCUMENT VALIDATIOn
      const birthCertificate = documents.find(
-        (doc) => doc.name === "Birth Certificate"
+        (doc) => doc.name?.trim() === "Birth Certificate"
       );
       const idCopy = documents.find(
-        (doc) => doc.name === " National ID"
+        (doc) => doc.name?.trim() === "National ID"
       );
+    
 
     if (Age < 18) {
-      if (!birthCertificate?.file) {
+      if (!birthCertificate?.files?.length) {
         res.status(400)
         throw new Error("Applicants under 18 must provide birth certificate");
       }
     } else {
-      if (!birthCertificate?.file && !idNo && !idCopy?.file) {
+      if (!birthCertificate?.files?.length&& !idCopy?.files?.length) {
         res.status(400)
         throw new Error(
           "Applicants 18+ must provide ID number or birth certificate"

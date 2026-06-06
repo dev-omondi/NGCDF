@@ -10,7 +10,7 @@ import {ShieldCheck,FileText,Clock3,Smartphone,SearchCheck,Users
   ,Building2,Landmark,CheckCircle, Calendar, Clock, Timer
 } 
 from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
  const features = [
@@ -53,6 +53,8 @@ import { Link } from "react-router-dom";
   ];
 
 const Homepage = () => {
+
+  const navigate=useNavigate()
 const {data,isLoading,isError}=useOpenCycleQuery()
 
 const cycle=data?.data ||[]
@@ -140,10 +142,16 @@ const Countdown = ({ endDate }) => {
             </p>
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center lg:justify-start pt-2">
-              <button className="px-6 py-3 bg-green-700 text-white font-medium rounded-lg hover:bg-red-400 transition duration-300 shadow-lg">
+              <button className="px-6 py-3 bg-blue-900 text-white font-medium 
+              rounded-lg hover:bg-green-800 transition duration-300 shadow-lg cursor-pointer"
+              onClick={()=>navigate("/application/guide")}
+              >
                 Get Guide
               </button>
-              <button className="px-6 py-3 border border-white/30 bg-green-600 rounded-lg hover:bg-white/10 transition duration-300">
+              <button className="px-6 py-3 border border-white/30 bg-green-600 rounded-lg
+               hover:bg-white/10 transition duration-300 cursor-pointer"
+               onClick={()=>navigate("/bursary/application")}
+              >
                 Apply Now
               </button>
             </div>

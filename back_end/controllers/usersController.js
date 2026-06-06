@@ -54,8 +54,6 @@ const loginUser=expressAsyncHandler(async(req,res)=>{
         throw new Error("Invalid email or password");
         
     }
-    console.log(isMatch)
-    generateToken(res,user._id)
 
     res.status(200).json({
         email:user.email,
@@ -154,7 +152,7 @@ const updateUser=expressAsyncHandler(async(req,res)=>{
         res.status(404)
         throw new Error("User not found")
     }
-    console.log("image from userController",req.body.image)
+   
     user.firstName=req.body.firstName||user.firstName
     user.secondName=req.body.secondName||user.secondName
     user.email=req.body.email||user.email

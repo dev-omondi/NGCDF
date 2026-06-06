@@ -31,26 +31,31 @@ const Footer = () => {
       </Link>
     </li>
     <li>
-      <Link to="/bursary" className="hover:text-blue-400 transition">
-        Bursary Application
+      <Link to="/bursary/application" className="hover:text-blue-400 transition">
+        Apply Now
       </Link>
     </li>
 
     <li>
-      <Link to="/projects" className="hover:text-blue-400 transition">
-        Development Projects
+      <Link to="" className="hover:text-blue-400 transition">
+        Get Guide
       </Link>
     </li>
 
     <li>
-      <Link to="/funding" className="hover:text-blue-400 transition">
-        Funding
+      <Link to="" className="hover:text-blue-400 transition">
+        Chech Status
+      </Link>
+    </li>
+    <li>
+      <Link to="" className="hover:text-blue-400 transition">
+        Overview
       </Link>
     </li>
 
     <li>
       <Link to="/contact" className="hover:text-blue-400 transition">
-        Contact Us
+        Help & Support
       </Link>
     </li>
 
@@ -136,7 +141,7 @@ const Footer = () => {
       {/* Bottom Section */}
       <div className="pt-6 flex justify-center">
         <p className="text-sm text-gray-400">
-          © 2026 Muhoroni NG-CDF. All Rights Reserved.
+          © 2026 @ Engineer Mlaguzi Softwares.
         </p>
       </div>
 
