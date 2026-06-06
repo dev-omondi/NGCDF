@@ -54,6 +54,7 @@ const loginUser=expressAsyncHandler(async(req,res)=>{
         throw new Error("Invalid email or password");
         
     }
+    generateToken(res,user._id)
 
     res.status(200).json({
         email:user.email,
@@ -74,7 +75,7 @@ const loginUser=expressAsyncHandler(async(req,res)=>{
 const logoutUser=expressAsyncHandler(async(req,res)=>{
     res.cookie("jwt","",{
         httpOnly:true,
-        sameSite:"strict",
+        sameSite:"none",
         secure:process.env.NODE_ENV==="production",
         expires:new Date(0)
     })
