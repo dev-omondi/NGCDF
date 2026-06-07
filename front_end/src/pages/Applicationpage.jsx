@@ -197,8 +197,8 @@ const removeSibling = (index) => {
         if (!file.type.startsWith("image/")) return file;
 
         return await imageCompression(file, {
-          maxSizeMB:9,
-          maxWidthOrHeight:4600,
+          maxSizeMB:6,
+          maxWidthOrHeight:3600,
           useWebWorker: true,
         });
       })
