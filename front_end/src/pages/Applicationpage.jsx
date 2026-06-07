@@ -197,7 +197,7 @@ const removeSibling = (index) => {
         if (!file.type.startsWith("image/")) return file;
 
         return await imageCompression(file, {
-          maxSizeMB:6,
+          maxSizeMB:5,
           maxWidthOrHeight:3600,
           useWebWorker: true,
         });
@@ -333,7 +333,6 @@ const removeSibling = (index) => {
    const documentOptions = [
   "Birth Certificate ",
   " National ID",
-  "Applicant ID Card",
   "Voter's Card",
   "Academic Transcript",
   "Burial Certificate / Burial Permit",
@@ -430,7 +429,7 @@ const removeSibling = (index) => {
     {/* ID NUMBER */}
     <input
       name="idNo"
-      placeholder="ID Number(Leave if you dont have ID)"
+      placeholder="ID Number(Leave if No ID)"
       onChange={handleChange}
       value={form.idNo}
       className="input"
@@ -439,7 +438,7 @@ const removeSibling = (index) => {
     {/* BIRTH CERTIFICATE NUMBER (NEW) */}
     <input
       name="birthCertNo"
-      placeholder="Birth Certificate Number(Leave if you have ID)"
+      placeholder="Birth Cert No(If have no Id)"
       onChange={handleChange}
       value={form.birthCertNo}
       className="input"
@@ -545,7 +544,7 @@ const removeSibling = (index) => {
 
                  <input type="text"
                  name="institutionBranch"
-                 placeholder="Institution Branch(for universities and Colleges)"
+                 placeholder="Institution Branch(Not for Highscol)"
                  className="input"
                  value={form.institutionBranch}
                  onChange={handleChange}
@@ -558,7 +557,7 @@ const removeSibling = (index) => {
                onChange={handleChange} />
 
               <input name="yearOfStudy" 
-              placeholder="Year of Study" 
+              placeholder="Year of Study(Not For Highscol)" 
               value={form.yearOfStudy}
               className="input"
                onChange={handleChange} />
