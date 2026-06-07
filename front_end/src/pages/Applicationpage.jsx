@@ -6,6 +6,7 @@ import { useApplyMutation } from "@/applicationRedux/baseAppslice";
 import { useUploadsMutation ,useDeleteImageMutation} from "@/imageRedux/imageBase";
 import { useNavigate } from "react-router-dom";
 import { NumericFormat } from "react-number-format";
+import imageCompression from "browser-image-compression";
 import toast from "react-hot-toast";
 const steps = [
   "Personal Info",
@@ -191,10 +192,21 @@ const removeSibling = (index) => {
      const handleFileUpload = async (index, e) => {
   const selectedFiles = Array.from(e.target.files);
   if (!selectedFiles.length) return;
+      const compressedFiles = await Promise.all(
+      selectedFiles.map(async (file) => {
+        if (!file.type.startsWith("image/")) return file;
+
+        return await imageCompression(file, {
+          maxSizeMB:9,
+          maxWidthOrHeight:4600,
+          useWebWorker: true,
+        });
+      })
+    );
   try {
     const formData = new FormData();
     // append multiple files
-    selectedFiles.forEach((file) => {
+    compressedFiles.forEach((file) => {
       formData.append("files", file);
     });
     const res = await uploads(formData).unwrap(); 
@@ -220,7 +232,7 @@ const removeSibling = (index) => {
         // local preview urls
         previews: [
           ...(doc.previews || []),
-          ...selectedFiles.map((f) =>
+          ...compressedFiles.map((f) =>
             URL.createObjectURL(f)
           ),
         ],
@@ -228,13 +240,13 @@ const removeSibling = (index) => {
         // file names
         fileNames: [
           ...(doc.fileNames || []),
-          ...selectedFiles.map((f) => f.name),
+          ...compressedFiles.map((f) => f.name),
         ],
 
         // file mime types
         fileTypes: [
           ...(doc.fileTypes || []),
-          ...selectedFiles.map((f) => f.type),
+          ...compressedFiles.map((f) => f.type),
         ],
               }
             : doc
