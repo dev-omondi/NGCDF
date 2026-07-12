@@ -31,9 +31,9 @@ const Skeleton = ({ className = "" }) => (
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard"                         },
+  { icon: LayoutDashboard, label: "Dashboard"  },
   { icon: Users,label: "Users",path:"/users"},
-  { icon: BarChart2,       label: "Reports"                           },
+  { icon: BarChart2,label: "Reports",path:"/download"},
   { icon: CalendarPlus, label: "Create Cycle", path:"/cycle/create" },
   {icon:File, label:"Cycle List", path:"/cycles"}
 ];

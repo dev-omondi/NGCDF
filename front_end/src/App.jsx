@@ -20,6 +20,7 @@ import { Toaster } from "react-hot-toast";
 import Createcycle from './dashboard/Createcycle'
 import Cyclespage from './dashboard/Cyclespage'
 import Cyclepage from './dashboard/Cyclepage'
+import Approvedpage from './pages/Approvedpage'
 import SupportPage from './pages/Supportpage'
 import ApplicationGuidePage from './pages/Applicationguide'
 const App = () => {
@@ -54,6 +55,7 @@ const App = () => {
           <Route element={<Protectpage allowedRoles={["admin"]}/> }>
             <Route path='/admin/dashboard' element={<BursaryDashboard/>}/>
             <Route path='/cycles' element={<Cyclespage/>}/>
+            <Route path='/download' element={<Approvedpage/>}/>
             <Route path='/cycle/:id' element={<Cyclepage/>}/>
             <Route path='/users' element={<Userspage/>}/>
             <Route path='/cycle/create' element={<Createcycle/>} />

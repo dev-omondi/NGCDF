@@ -25,6 +25,7 @@ const Cyclepage = () => {
   const [formData, setFormData] = useState({
     financialYear: "",
     openningDate: "",
+    cycleName:"",
     closingDate: "",
     status: "",
   });
@@ -34,6 +35,7 @@ const Cyclepage = () => {
     if (cycle) {
       setFormData({
         financialYear: cycle.financialYear || "",
+        cycleName:cycle.cycleName||"",
         openningDate: cycle.openningDate
           ? cycle.openningDate.split("T")[0]
           : "",
@@ -139,6 +141,10 @@ const Cyclepage = () => {
           <h2 className="text-xl font-bold">
             {cycle.financialYear}
           </h2>
+          
+          <h2 className="text-xl font-bold">
+            {cycle.cycleName}
+          </h2>
 
           <p className="text-slate-600">
             Status:{" "}
@@ -174,6 +180,19 @@ const Cyclepage = () => {
               type="text"
               name="financialYear"
               value={formData.financialYear}
+              onChange={handleChange}
+              className="w-full mt-2 px-4 py-3 border rounded-xl"
+            />
+          </div>
+               {/*Cycle Name*/}
+          <div>
+            <label className="text-sm text-slate-700">
+              Cycle Name
+            </label>
+            <input
+              type="text"
+              name="cycleName"
+              value={formData.cycleName}
               onChange={handleChange}
               className="w-full mt-2 px-4 py-3 border rounded-xl"
             />

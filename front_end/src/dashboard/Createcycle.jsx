@@ -12,6 +12,7 @@ const Createcycle = () => {
   const [formData, setFormData] = useState({
     financialYear:"",
     openningDate: "",
+    cycleName:"",
     closingDate: "",
   });
 
@@ -27,6 +28,7 @@ const Createcycle = () => {
 
     if (
       !formData.financialYear ||
+      !formData.cycleName||
       !formData.openningDate ||
       !formData.closingDate
     ) {
@@ -50,6 +52,7 @@ const Createcycle = () => {
       setFormData({
         financialYear:"",
         openningDate: "",
+        cycleName:"",
         closingDate: "",
       });
     } catch (error) {
@@ -103,6 +106,28 @@ const Createcycle = () => {
                   value={formData.financialYear}
                   onChange={handleChange}
                   placeholder="2027"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+             <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Cycle Name
+              </label>
+
+              <div className="relative">
+                <Wallet
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
+                <input
+                  type="text"
+                  name="cycleName"
+                  value={formData.cycleName}
+                  onChange={handleChange}
+                  placeholder="Show be unique"
                   className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
