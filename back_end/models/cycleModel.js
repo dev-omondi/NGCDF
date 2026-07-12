@@ -7,6 +7,11 @@ const cycleSchema=mongoose.Schema({
         required:true,
         unique:true
     },
+    cycleName:{
+        type:String,
+        required:true,
+        unique:true
+    },
     openningDate:{
         type:Date,
         required:true

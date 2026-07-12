@@ -6,6 +6,7 @@ const applicationSchema = new mongoose.Schema(
     // basic info
     burSaryType: { type: String, required: true, trim: true },
     financialYear:{type:String ,required:true},
+    cycleName:{type:String,required:true},
     ward: { type: String, required: true, trim: true },
     location: { type: String, required: true, trim: true },
     subLocation: { type: String, required: true, trim: true },

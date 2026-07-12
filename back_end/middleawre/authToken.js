@@ -4,9 +4,6 @@ import expressAsyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken"
 
 const authToken=expressAsyncHandler(async(req,res,next)=>{
-     console.log("Cookies received:", req.cookies);
-    console.log("JWT cookie:", req.cookies?.jwt);
-
     let token
     token=req.cookies.jwt
 

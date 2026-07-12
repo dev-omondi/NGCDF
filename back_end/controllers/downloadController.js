@@ -1,28 +1,24 @@
 import ExcelJS from "exceljs";
-import Applications from "../models/applicationModel.js";
+import Applications from "../models/applicationSchema.js";
 
 export const downloadApprovedApplicants = async (req, res) => {
+  
+console.log("Cycle Name:", req.query.cycleName);
   try {
     const {
-      financialYear,
-      ward,
-      levelOfStudy,
-      institutionName,
+      cycleName
     } = req.query;
 
     // ==========================
     // BUILD QUERY
-    // ==========================
+    // =====================
 
     const query = {
       status: "Approved",
       ApprovedAmount: { $gt: 0 },
     };
 
-    if (financialYear) query.financialYear = financialYear;
-    if (ward) query.ward = ward;
-    if (levelOfStudy) query.levelOfStudy = levelOfStudy;
-    if (institutionName) query.institutionName = institutionName;
+    if (cycleName) query.cycleName=cycleName;
 
     const applicants = await Applications.find(query).sort({
       institutionName: 1,
@@ -36,21 +32,50 @@ export const downloadApprovedApplicants = async (req, res) => {
       });
     }
 
-    // ==========================
-    // CREATE WORKBOOK
-    // ==========================
+    const MAX_PER_SHEET = 300;
+      const sheets = [];
 
+    let currentSheet = [];
+
+    for (const applicant of applicants) {
+      if (currentSheet.length < MAX_PER_SHEET) {
+        currentSheet.push(applicant);
+        continue;
+      }
+
+      const lastApplicant = currentSheet[currentSheet.length - 1];
+
+      if (lastApplicant.institutionName === applicant.institutionName) {
+        currentSheet.push(applicant);
+      } else {
+        sheets.push(currentSheet);
+        currentSheet = [applicant];
+      }
+    }
+
+    if (currentSheet.length) {
+      sheets.push(currentSheet);
+    }
+    
+    //@.... CREATE WORKBOOK
     const workbook = new ExcelJS.Workbook();
 
     workbook.creator = "Muhoroni NGCDF";
     workbook.company = "Muhoroni NGCDF";
     workbook.created = new Date();
 
-    const worksheet = workbook.addWorksheet("Bank Schedule");
+     let grandTotal = 0;
+    let grandBeneficiaries = 0
 
-    // ==========================
-    // COLUMN WIDTHS
-    // ==========================
+    for (let i = 0; i < sheets.length; i++) {
+
+        const worksheet = workbook.addWorksheet(
+            `Bank Schedule ${i + 1}`
+        );
+
+    const sheetApplicants = sheets[i];
+
+    // COLUMN WIDTH
 
     worksheet.columns = [
       { key: "no", width: 8 },
@@ -93,21 +118,25 @@ export const downloadApprovedApplicants = async (req, res) => {
       horizontal: "center",
     };
 
-    worksheet.getCell("A4").value = "Financial Year:";
-    worksheet.getCell("B4").value = financialYear || "All";
+    worksheet.mergeCells("A4:F4");
+    worksheet.getCell("A4").value = `Cycle Name: ${cycleName || "All"}`;
+    worksheet.getCell("A4").alignment = {
+      horizontal: "center",
+      vertical: "middle",
+    };
 
-    worksheet.getCell("D4").value = "Ward:";
-    worksheet.getCell("E4").value = ward || "All";
-
-    worksheet.getCell("A5").value = "Generated On:";
-    worksheet.getCell("B5").value =
-      new Date().toLocaleDateString();
-
-    // ==========================
+    worksheet.mergeCells("A5:F5");
+    worksheet.getCell("A5").value = `Generated On: ${new Date().toLocaleDateString()}`;
+    worksheet.getCell("A5").alignment = {
+      horizontal: "center",
+      vertical: "middle",
+    };
+     
+    
     // GROUP BY INSTITUTION
-    // ==========================
+  
 
-    const groupedApplicants = applicants.reduce((groups, applicant) => {
+    const groupedApplicants = sheetApplicants.reduce((groups, applicant) => {
 
       if (!groups[applicant.institutionName]) {
         groups[applicant.institutionName] = [];
@@ -121,12 +150,8 @@ export const downloadApprovedApplicants = async (req, res) => {
 
     let currentRow = 7;
 
-    let grandTotal = 0;
-    let grandBeneficiaries = 0;
 
-    // ==========================
     // LOOP INSTITUTIONS
-    // ==========================
 
     for (const institution of Object.keys(groupedApplicants)) {
 
@@ -152,16 +177,8 @@ export const downloadApprovedApplicants = async (req, res) => {
         size: 13,
       };
 
-      institutionCell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: {
-          argb: "D9EAF7",
-        },
-      };
-
       institutionCell.alignment = {
-        horizontal: "left",
+        horizontal: "center",
       };
 
       currentRow++;
@@ -181,32 +198,16 @@ export const downloadApprovedApplicants = async (req, res) => {
         "Amount (KES)",
       ];
 
-      header.font = {
-        bold: true,
-        color: {
-          argb: "FFFFFFFF",
-        },
-      };
-
-      header.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: {
-          argb: "2563EB",
-        },
-      };
 
       header.alignment = {
         horizontal: "center",
       };
-
-      currentRow++;
+    
+       currentRow++;
 
       let institutionTotal = 0;
-
-      // ==========================
+    
       // STUDENTS
-      // ==========================
 
       students.forEach((student, index) => {
 
@@ -355,11 +356,14 @@ export const downloadApprovedApplicants = async (req, res) => {
     worksheet.getCell(`C${currentRow}`).value =
       "________________________";
 
+        }
+      
+
     // ==========================
     // DOWNLOAD
     // ==========================
 
-    const fileName = `Bank_Schedule_${Date.now()}.xlsx`;
+    const fileName = `Bank_Schedule_${cycleName}.xlsx`;
 
     res.setHeader(
       "Content-Type",

@@ -10,7 +10,7 @@ const createCycle=expressAsyncHandler(async(req ,res)=>{
         res.status(409)
         throw new Error("An onpen cycle already exist")
     }
-     const {financialYear,openningDate,closingDate}=req.body
+     const {financialYear,cycleName,openningDate,closingDate}=req.body
      if (new Date(openningDate) >= new Date(closingDate)) {
     res.status(400);
     throw new Error("Closing date must be after opening date");
@@ -20,7 +20,7 @@ const createCycle=expressAsyncHandler(async(req ,res)=>{
         throw new Error("All the fields are mandatory")
     }
     const cycle=await Applicationcycle.create({
-        financialYear,openningDate,closingDate
+        financialYear,openningDate,cycleName,closingDate
     })
     res.status(201).json(cycle)
 })
@@ -35,7 +35,7 @@ const updateCycle = expressAsyncHandler(async (req, res) => {
         throw new Error("The cycle does not exist");
     }
 
-    const { financialYear, openingDate, closingDate, status } = req.body;
+    const { financialYear, openingDate,cycleName, closingDate, status } = req.body;
     const newOpeningDate = openingDate || cycle.openingDate;
     const newClosingDate = closingDate || cycle.closingDate;
     if (
@@ -53,6 +53,7 @@ const updateCycle = expressAsyncHandler(async (req, res) => {
         throw new Error("Opening date must be before closing date");
     }
     cycle.financialYear = financialYear || cycle.financialYear;
+    cycle.cycleName=cycleName||cycle.cycleName
     cycle.openingDate = newOpeningDate;
     cycle.closingDate = newClosingDate;
     cycle.status = status || cycle.status;

@@ -35,7 +35,7 @@ app.use("/api/upload",r2Router)
 app.use("/api/users",userRouter)
 app.use("/api/cycle",cycleRouter)
 app.use("/api/application",applicationRouter)
-app.use("/api/downloads",downloadRouter)
+app.use("/api/download",downloadRouter)
 
 
 //error handler middleware

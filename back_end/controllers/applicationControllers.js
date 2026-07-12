@@ -170,7 +170,8 @@ import Applicationcycle from "../models/cycleModel.js";
     const existing = await Applications.findOne({
       admissionNo,
       institutionName,
-      financialYear:openCycle.financialYear
+      financialYear:openCycle.financialYear,
+      cycleName:openCycle.cycleName
     });
 
     if (existing) {
@@ -184,6 +185,7 @@ import Applicationcycle from "../models/cycleModel.js";
       ward,
       location,
       financialYear:openCycle.financialYear,
+      cycleName:openCycle.cycleName,
       subLocation,
       village,
 
