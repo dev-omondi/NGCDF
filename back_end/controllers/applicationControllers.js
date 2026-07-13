@@ -393,5 +393,39 @@ const updateAllocatedAmount=expressAsyncHandler(async(req,res)=>{
 
 })
 
+//@..description--------------------------------------------get approved applicants stats
+//@..access--------------------------------------------------private
+//@..api-------------------------------------------------------GET/api/applicants/stats
+const getApprovedApplicantsStats =expressAsyncHandler(async (req, res) => {
+  const { cycleName } = req.query;
+
+  const query = {
+    status: "Approved",
+    ApprovedAmount: { $gt: 0 },
+  };
+
+  if (cycleName && cycleName !== "All") {
+    query.cycleName = cycleName;
+  }
+
+  const [stats] = await Applications.aggregate([
+    {
+      $match: query,
+    },
+    {
+      $group: {
+        _id: null,
+        totalApproved: { $sum: 1 },
+        totalAllocation: { $sum: "$ApprovedAmount" },
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    totalApproved: stats?.totalApproved || 0,
+    totalAllocation: stats?.totalAllocation || 0,
+  });
+});
+
 export {createApplication,getApplicants,getApllicant,
-      updateApplicantsStatus,updateAllocatedAmount}
+      updateApplicantsStatus,updateAllocatedAmount,getApprovedApplicantsStats}

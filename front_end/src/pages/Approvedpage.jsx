@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Input } from "@/components/ui/input";
+import { useGetApprovedStatsQuery } from "@/applicationRedux/baseAppslice";
 
 const LIMIT = 15;
 
@@ -48,7 +48,6 @@ const Approvedpage = () => {
   const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
   const [cycleName, setCycleName] = useState("All");
 
   const {
@@ -61,13 +60,16 @@ const Approvedpage = () => {
     isFetching,
     isError,
   } = useApplicantsQuery({
-    status: "Approved",
+    status:"Approved",
     page,
     limit: LIMIT,
-    search,
     cycleName,
   });
 
+  const { data: stats , 
+  isLoading: statsLoading,
+  isError: statsError,} = useGetApprovedStatsQuery(cycleName);
+  
   const [
     downloadApplicants,
     {
@@ -75,31 +77,13 @@ const Approvedpage = () => {
     },
   ] = useDownloadApplicantsMutation();
 
-  const applicants = data?.data || [];
+  const applicants = (data?.data || []).filter(
+  (applicant) =>
+    applicant.status === "Approved" &&
+    Number(applicant.ApprovedAmount) > 0
+);
 
   const pagination = data?.pagination;
-
-  const stats = useMemo(() => {
-    const totalApproved = applicants.length;
-
-    const totalAllocation = applicants.reduce(
-      (sum, applicant) => sum + (applicant.ApprovedAmount || 0),
-      0
-    );
-
-    const currentCycle =
-      cycleName === "All"
-        ? "All Cycles"
-        : cycleName;
-
-    return {
-      totalApproved,
-      totalAllocation,
-      currentCycle,
-      cycles:
-        cycles?.length || 0,
-    };
-  }, [applicants, cycleName, cycles]);
 
   console.log(cycleName)
 
@@ -146,9 +130,7 @@ const Approvedpage = () => {
 
         <div className="max-w-7xl mx-auto px-6 py-8">
 
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
-            <div>
+            <div className="text-center items-center">
 
               <Button
                 variant="secondary"
@@ -166,37 +148,15 @@ const Approvedpage = () => {
 
               </h1>
 
-              <p className="text-blue-100 mt-2">
+              <p className="text-blue-100 mt-2 items-center">
 
-                View approved applicants, allocated bursary
-                funds and download reports.
+                Make sure you have selected the current application cycle name before downloading the excel file
 
               </p>
 
             </div>
 
-            <Button
-              size="lg"
-              disabled={downloading}
-              onClick={handleDownload}
-              className="bg-white text-blue-700 hover:bg-blue-50"
-            >
-              {downloading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-
-                  Downloading...
-                </>
-              ) : (
-                <>
-                  <Download className="mr-2 h-4 w-4" />
-
-                  Download Excel
-                </>
-              )}
-            </Button>
-
-          </div>
+        
 
         </div>
 
@@ -215,19 +175,16 @@ const Approvedpage = () => {
             <CardContent className="flex items-center justify-between p-6">
 
               <div>
-
                 <p className="text-sm text-slate-500">
-
                   Approved Applicants
-
                 </p>
-
                 <h2 className="text-3xl font-bold mt-2">
-
-                  {stats.totalApproved}
-
+                  {statsLoading ? (
+                    <Skeleton className="h-8 w-20" />
+                  ) : (
+                    stats?.totalApproved ?? 0
+                  )}
                 </h2>
-
               </div>
 
               <Users className="text-blue-600 h-10 w-10" />
@@ -247,12 +204,13 @@ const Approvedpage = () => {
                   Total Allocation
 
                 </p>
-
-                <h2 className="text-3xl font-bold mt-2">
-
-                  KES {stats.totalAllocation.toLocaleString()}
-
-                </h2>
+                    <h2 className="text-3xl font-bold mt-2">
+                      {statsLoading ? (
+                        <Skeleton className="h-8 w-32" />
+                      ) : (
+                        `KES ${(stats?.totalAllocation ?? 0).toLocaleString()}`
+                      )}
+                    </h2>
 
               </div>
 
@@ -275,9 +233,7 @@ const Approvedpage = () => {
                 </p>
 
                 <h2 className="text-xl font-bold mt-2">
-
-                  {stats.currentCycle}
-
+                  {cycleName === "All" ? "All Cycles" : cycleName}
                 </h2>
 
               </div>
@@ -301,15 +257,10 @@ const Approvedpage = () => {
                 </p>
 
                 <h2 className="text-3xl font-bold mt-2">
-
-                  {stats.cycles}
-
+                      {cycles?.length ?? 0}
                 </h2>
-
               </div>
-
               <BadgeCheck className="text-cyan-600 h-10 w-10" />
-
             </CardContent>
 
           </Card>
@@ -322,7 +273,7 @@ const Approvedpage = () => {
 
           <CardContent className="p-6">
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="flex gap-6 justify-center">
 
               <div>
 
@@ -366,44 +317,26 @@ const Approvedpage = () => {
 
               </div>
 
-              <div>
-
-                <label className="text-sm font-medium mb-2 block">
-
-                  Search Applicant
-
-                </label>
-
-                <div className="relative">
-
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-
-                  <Input
-                    value={search}
-                    onChange={(e) =>
-                      setSearch(e.target.value)
-                    }
-                    className="pl-10"
-                    placeholder="Search by name, institution or admission..."
-                  />
-
-                </div>
-
-              </div>
-
               <div className="flex items-end">
 
                 <Button
-                  className="w-full bg-blue-700 hover:bg-blue-800"
-                  onClick={handleDownload}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-
-                  Export Approved Applicants
-
-                </Button>
-
-              </div>
+                className="w-full bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                onClick={handleDownload}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Excel...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Excel File
+                  </>
+                )}
+              </Button>
+            </div>
 
             </div>
 
@@ -411,10 +344,8 @@ const Approvedpage = () => {
 
         </Card>
 
-        {/* PART 2 STARTS HERE */}
-        {/* =========================
-        APPLICANTS TABLE
-========================= */}
+        {/* 
+        APPLICANTS TABLE*/}
 
 <Card className="mt-8 shadow-sm border-0">
 

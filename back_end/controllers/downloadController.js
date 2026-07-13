@@ -9,9 +9,7 @@ console.log("Cycle Name:", req.query.cycleName);
       cycleName
     } = req.query;
 
-    // ==========================
     // BUILD QUERY
-    // =====================
 
     const query = {
       status: "Approved",

@@ -29,6 +29,15 @@ const applicationApi= usersApi.injectEndpoints({
             query:(id)=>`${APPLICATION_URL}/${id}`,
             providesTags:["Applications"]
         }),
+        getApprovedStats: builder.query({
+            query: (cycleName) => ({
+                url: `${APPLICATION_URL}/stats`,
+                params: {
+                cycleName,
+                },
+            }),
+            providesTags:["Applications"]
+            }),
         updateAmount:builder.mutation({
             query:({id,ApprovedAmount})=>({
                 url:`${APPLICATION_URL}/allocation/${id}`,
@@ -40,4 +49,4 @@ const applicationApi= usersApi.injectEndpoints({
     })
 })
 export const{useApplyMutation,useApplicantsQuery
-    ,useUpdateStatusMutation,useApplicantQuery,useUpdateAmountMutation}=applicationApi
+    ,useUpdateStatusMutation,useApplicantQuery,useUpdateAmountMutation,useGetApprovedStatsQuery}=applicationApi
