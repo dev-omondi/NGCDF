@@ -102,8 +102,9 @@ const Navbar = () => {
               </Link>
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
+                to={"/beneficiaries"}
               >
-                Overview
+                Beneficiaries
               </Link>
             </section>
 
@@ -341,8 +342,10 @@ const Navbar = () => {
             Application Status
           </Link>
 
-          <Link onClick={() => setOpen(false)}>
-            Overview
+          <Link onClick={() => setOpen(false)}
+          to={"/beneficiaries"}
+          >
+            Beneficiaries
           </Link>
 
 

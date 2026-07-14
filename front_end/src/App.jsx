@@ -23,6 +23,7 @@ import Cyclepage from './dashboard/Cyclepage'
 import Approvedpage from './pages/Approvedpage'
 import SupportPage from './pages/Supportpage'
 import ApplicationGuidePage from './pages/Applicationguide'
+import Beneficiariespage from './pages/Beneficiariespage'
 const App = () => {
 
   const navigate=useNavigate()
@@ -50,6 +51,7 @@ const App = () => {
           <Route path='/register' element={<Registerpage/>}/>
           <Route path='/bursary/application' element={<ApplicationForm/>}/>
           <Route path='applicant/:id' element={<ApplicantReviewPage/>}/>
+          <Route path='/beneficiaries' element={<Beneficiariespage/>}/>
           <Route path='/support' element={<SupportPage/>}/>
           <Route path='/application/guide' element={<ApplicationGuidePage/>}/>
           <Route element={<Protectpage allowedRoles={["admin"]}/> }>
