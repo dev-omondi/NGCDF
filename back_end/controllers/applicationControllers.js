@@ -247,7 +247,7 @@ const getApplicants = expressAsyncHandler(async (req, res) => {
     sortBy = "createdAt",
     sortOrder = "desc",
     page = 1,
-    limit = 20
+    limit =50
   } = req.query;
   let filter = {};
 
@@ -427,5 +427,55 @@ const getApprovedApplicantsStats =expressAsyncHandler(async (req, res) => {
   });
 });
 
-export {createApplication,getApplicants,getApllicant,
+//@..description-----------------------------------------check application status
+//@...api-------------------------------------------------GET/api/application/status
+//@..acess--------------------------------------------------public
+ 
+ const checkApplicationStatus =expressAsyncHandler(async (req, res) => {
+  const { cycleName, nationalId, birthCertNo, admissionNo } = req.body;
+
+  // Validate cycle
+  if (!cycleName) {
+    return res.status(400).json({
+      message: "Application cycle is required.",
+    });
+  }
+
+  // Applicant must provide either National ID or Birth Certificate Number
+  if (!nationalId && !birthCertNo) {
+    return res.status(400).json({
+      message: "Provide either National ID or Birth Certificate Number.",
+    });
+  }
+
+  const query = {
+    cycleName,
+  };
+  if (nationalId) {
+    query.nationalId = nationalId;
+  }
+  if (birthCertNo) {
+    query.birthCertNo = birthCertNo;
+  }
+  if (admissionNo) {
+    query.admissionNo = admissionNo;
+  }
+
+  const application = await Applications.findOne(query).select(
+    "fullname institutionName admissionNo cycleName status ApprovedAmount remarks createdAt"
+  );
+
+  if (!application) {
+    return res.status(404).json({
+      message: "No application found for the provided details.",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    application,
+  });
+});
+
+export {createApplication,getApplicants,getApllicant,checkApplicationStatus,
       updateApplicantsStatus,updateAllocatedAmount,getApprovedApplicantsStats}

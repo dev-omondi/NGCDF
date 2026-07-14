@@ -96,7 +96,7 @@ const Navbar = () => {
               </Link>
               <Link
                 className="hover:bg-blue-600 hover:text-white px-3 py-2 rounded transition-all duration-300"
-                to={"/application/status"}
+                to={"/status"}
               >
                 Check Status
               </Link>
@@ -337,7 +337,7 @@ const Navbar = () => {
           </Link>
 
           <Link onClick={() => setOpen(false)}
-          to={"/application/status"}
+          to={"/status"}
           >
             Application Status
           </Link>

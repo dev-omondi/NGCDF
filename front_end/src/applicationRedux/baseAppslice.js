@@ -45,8 +45,17 @@ const applicationApi= usersApi.injectEndpoints({
                 body:{ApprovedAmount}
             }),
             invalidatesTags:["Applications"]
+        }),
+        checkStatus:builder.mutation({
+            query:(data)=>({
+                url:`${APPLICATION_URL}/status`,
+                method:"POST",
+                body:data
+            }),
+            invalidatesTags:["Applications"]
         })
     })
 })
 export const{useApplyMutation,useApplicantsQuery
-    ,useUpdateStatusMutation,useApplicantQuery,useUpdateAmountMutation,useGetApprovedStatsQuery}=applicationApi
+    ,useUpdateStatusMutation,useApplicantQuery,
+    useUpdateAmountMutation,useGetApprovedStatsQuery,useCheckStatusMutation}=applicationApi

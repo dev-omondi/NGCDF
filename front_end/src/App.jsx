@@ -9,6 +9,7 @@ import BursaryDashboard from './dashboard/AdminDashboard'
 import Protectpage from './pages/Protectpage'
 import ApplicationForm from './pages/Applicationpage'
 import ApplicantsPage from './dashboard/Applicantsdashboard'
+import Statuspage from './pages/Statuspage'
 import Userpage from './dashboard/Userpage'
 import ApplicantReviewPage from './dashboard/Applicantpage'
 import Userspage from './dashboard/Userspage'
@@ -52,6 +53,7 @@ const App = () => {
           <Route path='/bursary/application' element={<ApplicationForm/>}/>
           <Route path='applicant/:id' element={<ApplicantReviewPage/>}/>
           <Route path='/beneficiaries' element={<Beneficiariespage/>}/>
+          <Route path='/status' element={<Statuspage/>}/>
           <Route path='/support' element={<SupportPage/>}/>
           <Route path='/application/guide' element={<ApplicationGuidePage/>}/>
           <Route element={<Protectpage allowedRoles={["admin"]}/> }>

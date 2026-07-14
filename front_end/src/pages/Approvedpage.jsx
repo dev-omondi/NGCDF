@@ -42,7 +42,7 @@ import {
 
 import { useGetApprovedStatsQuery } from "@/applicationRedux/baseAppslice";
 
-const LIMIT = 15;
+const LIMIT =50;
 
 const Approvedpage = () => {
   const navigate = useNavigate();

@@ -40,7 +40,7 @@ import {
 
 import { useGetcyclesQuery } from "@/cycleRedux/cycleBase";
 
-const LIMIT = 20;
+const LIMIT =50;
 
 const Beneficiariespage = () => {
   const navigate = useNavigate();
@@ -58,18 +58,17 @@ const Beneficiariespage = () => {
     useEffect(() => {
     setPage(1);
     }, [search, cycleName, applicationYear]);
-  // ==========================
-  // GET CYCLES
-  // ==========================
 
+  // GET CYCLES
+  
   const {
     data: cycles,
     isLoading: cyclesLoading,
   } = useGetcyclesQuery();
 
-  // ==========================
+  
   // GET APPLICANTS
-  // ==========================
+  
 
   const {
     data,
@@ -85,27 +84,25 @@ const Beneficiariespage = () => {
     applicationYear,
   });
 
-  // ==========================
-  // GET STATS
-  // ==========================
+ 
 
   const {
     data: stats,
     isLoading: statsLoading,
   } = useGetApprovedStatsQuery(cycleName);
 
-  // ==========================
-  // TABLE DATA
-  // ==========================
+  
 
-  const applicants = data?.data || [];
+  const applicants = (data?.data || []).filter(
+  (applicant) =>
+    applicant.status === "Approved" &&
+    Number(applicant.ApprovedAmount) > 0
+);
+
 
   const pagination = data?.pagination;
 
-  // ==========================
-  // APPLICATION YEARS
-  // ==========================
-
+  
   const applicationYears = useMemo(() => {
     if (!cycles) return [];
 
@@ -121,9 +118,7 @@ const Beneficiariespage = () => {
   return (
     <div className="min-h-screen bg-slate-50">
 
-      {/* ==========================
-            HERO
-      ========================== */}
+      {/* HERO*/}
 
       <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white">
 
