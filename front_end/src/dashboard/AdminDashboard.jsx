@@ -47,11 +47,8 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
     {open && (
       <div className="fixed inset-0 bg-slate-900/50 z-30 lg:hidden backdrop-blur-sm" onClick={onClose} />
     )}
-    <aside className={`fixed top-0 left-0 h-full z-40 w-64 flex flex-col
-      bg-gradient-to-b from-blue-950 via-blue-900 to-blue-950 shadow-2xl
-      transition-transform duration-300 ease-in-out
-      ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
-
+    <aside className={`fixed top-0 left-0 h-screen w-64 flex flex-col overflow-y-auto overflow-x-hidden bg-gradient-to-b from-blue-950 via-blue-900 to-blue-950 shadow-2xl z-40 transition-transform 
+      duration-300 ease-in-out ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
       {/* Brand */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-blue-800/60">
         <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center shrink-0">
@@ -116,7 +113,7 @@ const Sidebar = ({ open, onClose, activeNav, setActiveNav }) =>{
 )};
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
-const Navbar = ({  onMenuClick,
+const Topbar = ({  onMenuClick,
   selectedYear,
   setSelectedYear,
   financialYears,}) => {
@@ -576,17 +573,18 @@ const financialYear =
           100% { background-position: -200% 0; }
         }
       `}</style>
-
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)}
-        activeNav={activeNav} setActiveNav={setActiveNav} />
-
-      <div className="lg:pl-64 flex flex-col min-h-screen">
-       <Navbar
+      <Topbar
             onMenuClick={() => setSidebarOpen(true)}
             selectedYear={selectedYear}
             setSelectedYear={setSelectedYear}
             financialYears={financialYears}
           />
+
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)}
+        activeNav={activeNav} setActiveNav={setActiveNav} />
+
+      <div className="lg:pl-64 flex flex-col min-h-screen">
+
 
         <main className="flex-1 p-4 lg:p-6 space-y-5 max-w-screen-2xl mx-auto w-full">
 
@@ -629,11 +627,6 @@ const financialYear =
 
           {/* Allocated amount stats */}
            <AllocationStats applicants={filteredApplicants} />
-
-          {/* Footer */}
-          <div className="text-center pb-4 pt-2 text-xs text-slate-400 border-t border-slate-200/60">
-            © 2026 Muhoroni Constituency Bursary Fund · Kisumu County Government .version 2.4.1
-          </div>
         </main>
       </div>
     </div>

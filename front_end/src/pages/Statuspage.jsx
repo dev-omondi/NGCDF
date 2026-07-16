@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, CheckCircle2, Clock3, XCircle } from "lucide-react";
+import { Search,} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,16 +31,29 @@ const Statuspage = () => {
   const [checkStatus, { data, isLoading }] =
     useCheckStatusMutation();
 
-  const [form, setForm] = useState({
-    cycleName: "",
-    nationalId: "",
-    admissionNo: "",
-  });
+ const [form, setForm] = useState({
+                          cycleName: "",
+                          searchType: "birthCertNo", 
+                          nationalId: "",
+                          birthCertNo: "",
+                          admissionNo: "",
+                        });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await checkStatus(form);
+    const payload = {
+          cycleName: form.cycleName,
+          admissionNo: form.admissionNo,
+        };
+
+        if (form.searchType === "nationalId") {
+          payload.nationalId = form.nationalId;
+        } else {
+          payload.birthCertNo = form.birthCertNo;
+        }
+
+        await checkStatus(payload);
   };
 
   const badge = (status) => {
@@ -86,10 +99,11 @@ const Statuspage = () => {
             </CardTitle>
 
             <CardDescription>
-
-              Select your application cycle and enter your
-              details to track your bursary application.
-
+              <p>Click Select cycle and pick the current or preferred cycle</p>
+              <p>Click Birth certificate Number ,and change to National ID Number incase you used Id No </p>
+              <p>Choose the correct document type and fill the field below it</p>
+              <p>Fill the field for admissionNo and the check status button </p>
+              <p>Your application will appear at the bottom</p>
             </CardDescription>
 
           </CardHeader>
@@ -138,26 +152,73 @@ const Statuspage = () => {
                 </Select>
 
               </div>
-
               <div>
-
                 <label className="font-medium mb-2 block">
-                  National ID Number
+                  Search Using(IdNo or birthNo.the one you applied with)
                 </label>
 
-                <Input
-                  placeholder="Enter National ID"
-                  value={form.nationalId}
-                  onChange={(e) =>
+                <Select
+                  value={form.searchType}
+                  onValueChange={(value) =>
                     setForm({
                       ...form,
-                      nationalId: e.target.value,
+                      searchType: value,
+                      nationalId: "",
+                      birthCertNo: "",
                     })
                   }
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
 
+                  <SelectContent>
+                    <SelectItem value="nationalId">
+                      National ID Number
+                    </SelectItem>
+
+                    <SelectItem value="birthCertNo">
+                      Birth Certificate Number
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
+              {form.searchType === "nationalId" ? (
+            <div>
+              <label className="font-medium mb-2 block">
+                National ID Number
+              </label>
+
+                  <Input
+                    placeholder="Enter National ID Number"
+                    value={form.nationalId}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        nationalId: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="font-medium mb-2 block">
+                    Birth Certificate Number
+                  </label>
+
+                  <Input
+                    placeholder="Enter Birth Certificate Number"
+                    value={form.birthCertNo}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        birthCertNo: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              )}
               <div>
 
                 <label className="font-medium mb-2 block">
@@ -178,7 +239,7 @@ const Statuspage = () => {
               </div>
 
               <Button
-                className="w-full"
+                className="w-full bg-green-500"
                 disabled={isLoading}
               >
                 <Search className="mr-2 h-4 w-4" />
