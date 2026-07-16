@@ -13,7 +13,7 @@ const Layout = () => {
     <div className='min-h-screen w-full max-w-7xl mx-auto flex flex-col'>
         <Navbar/>
         <main className='flex-1'>
-           
+            <Outlet/>
         </main>
         <div className={isAdminDashboard ? "lg:pl-64" : ""}>
           <Footer/>
