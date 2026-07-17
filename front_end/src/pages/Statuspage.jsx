@@ -15,7 +15,9 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -33,7 +35,7 @@ const Statuspage = () => {
 
  const [form, setForm] = useState({
                           cycleName: "",
-                          searchType: "birthCertNo", 
+                          searchType: "", 
                           nationalId: "",
                           birthCertNo: "",
                           admissionNo: "",
@@ -98,13 +100,24 @@ const Statuspage = () => {
 
             </CardTitle>
 
-            <CardDescription>
-              <p>Click Select cycle and pick the current or preferred cycle</p>
-              <p>Click Birth certificate Number ,and change to National ID Number incase you used Id No </p>
-              <p>Choose the correct document type and fill the field below it</p>
-              <p>Fill the field for admissionNo and the check status button </p>
-              <p>Your application will appear at the bottom</p>
-            </CardDescription>
+            <CardDescription className="text-left text-sm space-y-2">
+            <p>
+              Use this page to check the current status of your bursary application.
+            </p>
+
+            <ol className="list-decimal pl-5 space-y-1">
+              <li>Select the bursary application cycle you applied for.</li>
+              <li>Select the identification document you used during your application (National ID or Birth Certificate).</li>
+              <li>Enter the corresponding document number.</li>
+              <li>Enter your admission number exactly as it appears on your admission letter.</li>
+              <li>Click <strong>Check Status</strong> to view your application details.</li>
+            </ol>
+
+            <p className="text-muted-foreground">
+              <strong>Note:</strong> If no record is found, confirm that the application cycle,
+              admission number, and identification document details are correct before trying again.
+            </p>
+          </CardDescription>
 
           </CardHeader>
 
@@ -114,13 +127,10 @@ const Statuspage = () => {
               onSubmit={handleSubmit}
               className="space-y-5"
             >
-
               <div>
-
                 <label className="font-medium mb-2 block">
                   Application Cycle
                 </label>
-
                 <Select
                   value={form.cycleName}
                   onValueChange={(value) =>
@@ -137,6 +147,8 @@ const Statuspage = () => {
                   </SelectTrigger>
 
                   <SelectContent>
+                    <SelectGroup>
+                    <SelectLabel>All CycleNames</SelectLabel>
 
                     {cycles?.map((cycle) => (
                       <SelectItem
@@ -146,6 +158,7 @@ const Statuspage = () => {
                         {cycle.cycleName}
                       </SelectItem>
                     ))}
+                    </SelectGroup>
 
                   </SelectContent>
 
@@ -154,7 +167,7 @@ const Statuspage = () => {
               </div>
               <div>
                 <label className="font-medium mb-2 block">
-                  Search Using(IdNo or birthNo.the one you applied with)
+                  Search Using(IdNo or birthNo,the one you applied with)
                 </label>
 
                 <Select
@@ -169,10 +182,12 @@ const Statuspage = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue  placeholder='Select Document Type No'/>
                   </SelectTrigger>
 
                   <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>All Document.Nos</SelectLabel>
                     <SelectItem value="nationalId">
                       National ID Number
                     </SelectItem>
@@ -180,6 +195,7 @@ const Statuspage = () => {
                     <SelectItem value="birthCertNo">
                       Birth Certificate Number
                     </SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>

@@ -15,7 +15,7 @@ const applicationApi= usersApi.injectEndpoints({
         }),
         applicants:builder.query({
             query:()=>`${APPLICATION_URL}`,
-            providesTags:["Applicants"]
+            providesTags:["Applications"]
         }),
         updateStatus:builder.mutation({
             query:({data,id})=>({

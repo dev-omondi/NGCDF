@@ -11,6 +11,7 @@ import {
   X,
   User,
   Settings,
+  LayoutDashboard,
   LogOut,
 } from "lucide-react"
 
@@ -50,6 +51,31 @@ const Navbar = () => {
     }
   }
 
+//navigating users to their dashboard
+
+const handleDashboard = () => {
+  if (!userInfor) {
+    navigate("/");
+    return;
+  }
+
+  switch (userInfor.role) {
+    case "admin":
+      navigate("/admin/dashboard");
+      break;
+
+    case "reviewer":
+      navigate("/applicants/dashboard");
+      break;
+
+    case "finance":
+      navigate("/allocation");
+      break;
+
+    default:
+      navigate("/beneficiaries");
+  }
+};
   return (
     <>
       {/* NAVBAR */}
@@ -156,9 +182,9 @@ const Navbar = () => {
                     Profile
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                  <DropdownMenuItem onClick={handleDashboard}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -262,7 +288,7 @@ const Navbar = () => {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
+                      <LayoutDashboard onClick={handleDashboard}/>
                       Settings
                     </DropdownMenuItem>
 

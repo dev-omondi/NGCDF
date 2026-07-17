@@ -97,7 +97,7 @@ if (isLoading) {
       <div className="bg-white border-b sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-5 flex justify-between items-center">
             <button
-              onClick={() => navigate("/applicants")}
+              onClick={() => navigate("/applicants/dashboard")}
               className="px-4 py-2 rounded-lg bg-green-400 hover:bg-green-600 text-white text-sm"
             >
               ← Back to Applicants

@@ -10,6 +10,8 @@ import applicationRouter from "./routers/applicationRouter.js"
 import cycleRouter from "./routers/cycleRouter.js"
 import downloadRouter from "./routers/downloadRouter.js"
 //import "./config/applicationJob.js"
+//import "./config/cycleJob.js";
+
 import cors from "cors";
 
 const app=express()

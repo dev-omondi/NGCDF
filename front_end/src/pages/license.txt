@@ -1,0 +1,22 @@
+Software License Agreement
+
+Copyright (c) 2026 Omeno Brian Omondi
+
+This software, including its source code, design, documentation, and related
+materials, is the intellectual property of Brian.
+
+A license is granted to Muhoroni NGCDF to install and use this software solely
+for its internal operations.
+
+The purchaser may modify the software for internal use.
+
+The purchaser may not:
+- Sell or redistribute the software.
+- Share the source code with third parties.
+- Transfer the software to another organization without the written permission
+  of the developer.
+
+All applicant and organizational data stored in the purchaser's database remain
+the property of Muhoroni NGCDF.
+
+This agreement does not transfer copyright ownership of the software.

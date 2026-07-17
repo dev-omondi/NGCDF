@@ -18,6 +18,7 @@ const ApplicantsPage = () => {
   const [search, setSearch] = useState("");
   const [type,setType]=useState("all")
   const [financialYear, setFinancialYear] = useState("all");
+  const [cycleName, setCycleName] = useState("all");
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const ApplicantsPage = () => {
     status,
     page,
     financialYear,
-    limit: 20,
+    limit:40,
   });
 
   const applicants = data?.data || [];
@@ -36,6 +37,11 @@ const ApplicantsPage = () => {
   "all",
   ...new Set(applicants.map((app) => app.financialYear).filter(Boolean))
 ];
+
+const cycleNames=[
+  "all",
+  ...new Set(applicants.map((app)=>app.cycleName).filter(Boolean))
+]
 
  const filtered = applicants?.filter((app) => {
   const q = search.toLowerCase();
@@ -63,10 +69,17 @@ const ApplicantsPage = () => {
   financialYear==="all"?true
   :app.financialYear===financialYear
 
+  const matchesCycle =
+  cycleName === "all"
+    ? true
+    : app.cycleName === cycleName;
+    
+
   return (
     matchesSearch &&
     matchesStatus &&
     matchesType &&
+    matchesCycle&&
     matchesYear
   );
 });
@@ -249,7 +262,7 @@ const ApplicantsPage = () => {
                   Scholarship
                 </button>
               </div>
-              <div className="flex items-center gap-2">
+<div className="flex items-center gap-2">
   <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
     <Filter size={16} />
     Year
@@ -273,10 +286,35 @@ const ApplicantsPage = () => {
     ))}
   </select>
 </div>
-          </div>
-          </div>
-          </div>
-          </div>
+<div className="flex items-center gap-2">
+  <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+    <Filter size={16} />
+    Cycle
+  </div>
+
+  <select
+    value={cycleName}
+    onChange={(e) => setCycleName(e.target.value)}
+    className="
+      px-4 py-2 rounded-xl border text-sm font-medium
+      bg-white text-slate-700
+      hover:bg-slate-100
+      outline-none
+      cursor-pointer
+    "
+  >
+    {cycleNames.map((cycle) => (
+      <option key={cycle} value={cycle}>
+        {cycle === "all" ? "All Cycles" : cycle}
+      </option>
+    ))}
+  </select>
+</div>
+
+</div>
+</div>
+ </div>
+</div>
             
 
             {/* PAGE CONTENT */}

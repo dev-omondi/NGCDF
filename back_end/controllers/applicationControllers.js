@@ -373,6 +373,7 @@ const updateApplicantsStatus=expressAsyncHandler(async(req,res)=>{
 const updateAllocatedAmount=expressAsyncHandler(async(req,res)=>{
    console.log("Controller is reached")
    console.log(req.body)
+   console.log(req.user)
   const{ ApprovedAmount}=req.body
   const {id}=req.params
   console.log(ApprovedAmount)

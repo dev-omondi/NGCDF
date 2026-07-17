@@ -77,11 +77,9 @@ const Beneficiariespage = () => {
     isError,
   } = useApplicantsQuery({
     status: "Approved",
-    search,
     page,
     limit: LIMIT,
-    cycleName,
-    applicationYear,
+    
   });
 
  
@@ -90,8 +88,6 @@ const Beneficiariespage = () => {
     data: stats,
     isLoading: statsLoading,
   } = useGetApprovedStatsQuery(cycleName);
-
-  
 
   const applicants = (data?.data || []).filter(
   (applicant) =>
@@ -105,16 +101,35 @@ const Beneficiariespage = () => {
   
   const applicationYears = useMemo(() => {
     if (!cycles) return [];
-
     const years = [
       ...new Set(
         cycles.map((cycle) => cycle.financialYear)
       ),
     ];
-
     return years.sort().reverse();
   }, [cycles]);
 
+    const filtered = applicants.filter((app) => {
+  const q = search.toLowerCase();
+
+  const matchesSearch =
+    app.fullName?.toLowerCase().includes(q) ||
+    app.idNo?.toLowerCase().includes(q) ||
+    app.admissionNo?.toLowerCase().includes(q) ||
+    app.institutionName?.toLowerCase().includes(q);
+
+  const matchesYear =
+    applicationYear === "All"
+      ? true
+      : app.financialYear === applicationYear;
+
+  const matchesCycle =
+    cycleName === "All"
+      ? true
+      : app.cycleName === cycleName;
+
+  return matchesSearch && matchesYear && matchesCycle;
+});
   return (
     <div className="min-h-screen bg-slate-50">
 
@@ -153,15 +168,9 @@ const Beneficiariespage = () => {
 
       </div>
 
-      {/* ==========================
-            PAGE CONTENT
-      ========================== */}
 
       <div className="max-w-7xl mx-auto px-6 py-8">
 
-        {/* ==========================
-                STATS
-        ========================== */}
 
         <Card className="shadow-sm">
 
@@ -197,9 +206,7 @@ const Beneficiariespage = () => {
 
         </Card>
 
-        {/* ==========================
-                FILTERS
-        ========================== */}
+        {/*  FILTERS */}
 
         <Card className="mt-8 shadow-sm">
 
@@ -432,7 +439,7 @@ const Beneficiariespage = () => {
 
           <TableBody>
 
-            {applicants.map((applicant, index) => (
+            {filtered.map((applicant, index) => (
 
               <TableRow
                 key={applicant._id}

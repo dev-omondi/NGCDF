@@ -4,6 +4,7 @@ import {
   useUpdateAmountMutation,
 } from "@/applicationRedux/baseAppslice";
 import { useNavigate } from "react-router-dom";
+import { NumericFormat } from "react-number-format";
 
 import {
   Search,
@@ -19,6 +20,7 @@ const Fundsallocation = () => {
   const [status, setStatus] = useState("all");
   const [type, setType] = useState("all");
   const [search, setSearch] = useState("");
+  const [cycleName, setCycleName] = useState("all");
   const [page, setPage] = useState(1);
 
   const [selectedApp, setSelectedApp] = useState(null);
@@ -30,7 +32,7 @@ const Fundsallocation = () => {
     status,
     page,
     financialYear,
-    limit: 20,
+    limit: 40,
   });
 
   const [updateAmount] = useUpdateAmountMutation();
@@ -41,6 +43,11 @@ const Fundsallocation = () => {
     ...new Set(applicants.map((app) => app.financialYear).filter(Boolean))
   ];
     
+  const cycleNames=[
+  "all",
+  ...new Set(applicants.map((app)=>app.cycleName).filter(Boolean))
+  ]
+
   // FILTER LOGIC
   const filtered = applicants?.filter((app) => {
     const q = search.toLowerCase();
@@ -62,7 +69,13 @@ const Fundsallocation = () => {
     ? true
     : app.financialYear === financialYear;
 
-    return matchesSearch && matchesStatus && matchesType&&matchesYear;
+    const matchesCycle =
+    cycleName === "all"
+    ? true
+    : app.cycleName === cycleName;
+    
+
+    return matchesSearch && matchesStatus && matchesType&&matchesYear&&matchesCycle;
   });
 
   // OPEN MODAL
@@ -150,27 +163,29 @@ const Fundsallocation = () => {
             </div>
 
             {/* TYPE FILTER */}
-            <div className="flex gap-8">
-            <div className="flex flex-wrap justify-center items-center gap-2">
-              <Filter size={16} className="text-slate-500" />
+          <div className="flex gap-8">
+            <div className="flex items-center gap-2">
+  <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+    <Filter size={16} />
+    Type
+  </div>
 
-              {["all", "bursary", "scholarship"].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setType(t)}
-                  className={`
-                    px-4 py-2 rounded-xl border text-sm capitalize transition cursor-pointer
-                    ${
-                      type === t
-                        ? "bg-purple-600 text-white"
-                        : "bg-white hover:bg-slate-50"
-                    }
-                  `}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+  <select
+    value={type}
+    onChange={(e) => setType(e.target.value)}
+    className="
+      px-4 py-2 rounded-xl border text-sm font-medium
+      bg-white text-slate-700
+      hover:bg-slate-50
+      outline-none
+      cursor-pointer
+    "
+  >
+    <option value="all">All Types</option>
+    <option value="bursary">Bursary</option>
+    <option value="scholarship">Scholarship</option>
+  </select>
+</div>
                           {/* YEAR FILTER */}
               <div className="flex flex-wrap justify-center items-center gap-2">
                 <Filter size={16} className="text-slate-500" />
@@ -184,6 +199,30 @@ const Fundsallocation = () => {
                   {financialYears.map((year) => (
                     <option key={year} value={year}>
                       {year === "all" ? "All Years" : year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+                  <Filter size={16} />
+                  Cycle
+                </div>
+              
+                <select
+                  value={cycleName}
+                  onChange={(e) => setCycleName(e.target.value)}
+                  className="
+                    px-4 py-2 rounded-xl border text-sm font-medium
+                    bg-white text-slate-700
+                    hover:bg-slate-100
+                    outline-none
+                    cursor-pointer
+                  "
+                >
+                  {cycleNames.map((cycle) => (
+                    <option key={cycle} value={cycle}>
+                      {cycle === "all" ? "All Cycles" : cycle}
                     </option>
                   ))}
                 </select>
@@ -304,12 +343,14 @@ const Fundsallocation = () => {
           <label className="text-sm font-medium text-slate-700">
             Update Approved Amount
           </label>
-          <input
-            type="number"
+          <NumericFormat
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onValueChange={(values) => setAmount(values.floatValue || 0)}
+            thousandSeparator
+            prefix="KES "
+            allowNegative={false}
             className="w-full border rounded-xl p-4 mt-2 focus:ring-2 focus:ring-blue-500 outline-none text-lg"
-            placeholder="Enter new amount"
+            placeholder="Enter approved amount"
           />
         </div>
       </div>

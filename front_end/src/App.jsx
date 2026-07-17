@@ -67,9 +67,9 @@ const App = () => {
           <Route element={<Protectpage allowedRoles={["reviewer"]}/>}>
             <Route path='/applicants/dashboard' element={<ApplicantsPage/>}/>
           </Route>
-            <Route element={<Protectpage allowedRoles={["finance"]}/>}>
-               <Route path='/allocation' element={<Fundsallocation/>}/>
-            </Route>
+          <Route element={<Protectpage allowedRoles={["finance"]}/>}>
+              <Route path='/allocation' element={<Fundsallocation/>}/>
+          </Route>
           <Route path='/user/:id' element={<Userpage/>}/>
           <Route path='/profile/:id' element={<Profilepage/>}/>
         </Route>

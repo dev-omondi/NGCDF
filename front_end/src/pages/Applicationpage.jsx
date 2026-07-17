@@ -551,7 +551,7 @@ const removeSibling = (index) => {
                   />
 
               <input name="class"
-               placeholder="Class / Course" 
+               placeholder="Class(For Highscool)/Course(For Colleges)" 
                className="input" 
                value={form.class}
                onChange={handleChange} />

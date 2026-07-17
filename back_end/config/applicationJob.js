@@ -8,7 +8,7 @@ cron.schedule("* * * * *", async () => {
 
     const now = new Date();
 
-    const cutoff = new Date(now.getTime() - 50 * 60 * 1000);
+    const cutoff = new Date(now.getTime() - 50* 60 * 1000);
 
     const result = await Applications.updateMany(
       {
